@@ -1,52 +1,54 @@
-# 🏠 Çeyiz Robotu
+# Çeyiz Robotu
 
-Çeyiz Robotu, çeyiz alışverişini kolaylaştıran bir web uygulamasıdır. Koltuk, Halı, Perde, Sehpa, Yemek Masası ve Aydınlatma kategorilerinde ürünleri filtreleyerek, karşılaştırarak ve bütçenize göre planlayarak çeyiz listenizi oluşturabilirsiniz.
+**AI destekli ev dizme asistanı** — çeyiz alışverişini adım adım planla: bütçeni yönet, koltuk stiline göre halı ve mobilyayı filtrele, renk uyumunu robot önerileriyle güçlendir ve kombinasyonunu tek ekranda özetle.
 
-## 📁 Proje Yapısı
+## Öne çıkanlar
 
-```
-ceyiz-robotu/
-├── urunler.json        # 100 adet mock ürün veritabanı
-├── generate_db.py      # Veritabanı oluşturucu script
-└── README.md           # Proje dokümantasyonu
-```
+- **4 adımlı sihirbaz:** Koltuk → Halı → Yemek masası → Aydınlatma  
+- **Bütçe paneli:** Anlık harcama, kalan tutar ve görsel ilerleme çubuğu  
+- **Akıllı filtreleme:** Koltuk stiline göre (Modern / Klasik / Nötr / Zamansız) liste; veri daralırsa nötr renk ve tam kategori fallback’i  
+- **Renk uyumu:** Koltuk rengine göre “Robotun Önerisi” rozetleri  
+- **Özet & paylaşım:** Harcama dağılımı, AI iç mimar yorumu, stil puanı, kombinasyon kodu, panoya kopyala  
+- **Konfeti & mikro etkileşimler:** Tamamlayınca kutlama animasyonu  
+- **Mobil uyum:** Sticky bütçe alanı, dokunmatik dostu kontroller, alt önizleme şeridi  
 
-## 📊 Veritabanı İçeriği
+## Teknolojiler
 
-- **100 adet** sahte (mock) ürün
-- **6 Kategori:** Koltuk, Halı, Perde, Sehpa, Yemek Masası, Aydınlatma
-- **3 Stil:** Modern, Klasik, Minimalist
-- **Fiyat Aralığı:** 3.000 TL - 50.000 TL
-- Her ürünün özellikleri:
-  - `id` - Benzersiz ürün ID'si
-  - `kategori` - Ürün kategorisi
-  - `ad` - Ürün adı (Marka + Ürün tipi)
-  - `marka` - Ürün markası
-  - `fiyat` - Fiyat (TL)
-  - `renk` - HEX kodu ve renk adı
-  - `stil` - Modern / Klasik / Minimalist
-  - `gorsel_url` - picsum.photos görsel linki
+React 19, TypeScript, Vite 8, Tailwind CSS 4, Lucide React, `canvas-confetti`.
 
-## 🚀 Kurulum
+## Geliştirme
 
 ```bash
-# Repoyu klonlayın
-git clone https://github.com/KULLANICI_ADINIZ/ceyiz-robotu.git
-cd ceyiz-robotu
-
-# Veritabanını yeniden oluşturmak isterseniz
-python generate_db.py
+npm install
+npm run dev
 ```
 
-## 🛠️ Kullanılan Teknolojiler
+Üretim derlemesi:
 
-- Python 3 (veritabanı oluşturucu)
-- JSON (veri depolama)
+```bash
+npm run build
+npm run preview
+```
 
-## 📌 Durum
+Ürün verisini yeniden üretmek için:
 
-🔴 **1. Adım tamamlandı** - Veritabanı ve altyapı oluşturuldu.
+```bash
+node scripts/generate-products.mjs
+```
 
----
+## Yayına alma
 
-*Bu proje çeyiz planlamasını dijitalleştirmek amacıyla geliştirilmektedir.*
+### Vercel
+
+1. Repo’yu bağla — **Framework Preset: Vite** (çoğu zaman otomatik).  
+2. Build: `npm run build` — çıktı klasörü: `dist`.  
+3. Ekstra `vercel.json` gerekmez; tek sayfa uygulaması kökten servis edilir.
+
+### Netlify
+
+1. Build command: `npm run build` — publish directory: `dist`.  
+2. `public/_redirects` dosyası SPA yönlendirmesi için `/* → /index.html` kuralını içerir.
+
+## Lisans
+
+Özel proje — kullanım koşullarını repoyu sahibiyle netleştirin.

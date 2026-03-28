@@ -1,0 +1,1282 @@
+[
+  {
+    "id": 1,
+    "category": "Koltuk",
+    "name": "Vitra Köşe Takımı",
+    "brand": "Vitra",
+    "price": 7639,
+    "color": "Antrasit (#36454F)",
+    "style": "Modern",
+    "imageUrl": "https://picsum.photos/seed/ceyiz1/400/300"
+  },
+  {
+    "id": 2,
+    "category": "Koltuk",
+    "name": "İstikbal Üçlü Koltuk",
+    "brand": "İstikbal",
+    "price": 11778,
+    "color": "Lacivert (#1E3A5F)",
+    "style": "Modern",
+    "imageUrl": "https://picsum.photos/seed/ceyiz2/400/300"
+  },
+  {
+    "id": 3,
+    "category": "Koltuk",
+    "name": "Bellona İkili Kanepe",
+    "brand": "Bellona",
+    "price": 15917,
+    "color": "Gri (#808080)",
+    "style": "Modern",
+    "imageUrl": "https://picsum.photos/seed/ceyiz3/400/300"
+  },
+  {
+    "id": 4,
+    "category": "Koltuk",
+    "name": "Mondi Berjer",
+    "brand": "Mondi",
+    "price": 20056,
+    "color": "Beyaz (#F8F8F8)",
+    "style": "Modern",
+    "imageUrl": "https://picsum.photos/seed/ceyiz4/400/300"
+  },
+  {
+    "id": 5,
+    "category": "Koltuk",
+    "name": "Doğtaş Modüler Grup",
+    "brand": "Doğtaş",
+    "price": 24195,
+    "color": "Zeytin (#3D4F3D)",
+    "style": "Modern",
+    "imageUrl": "https://picsum.photos/seed/ceyiz5/400/300"
+  },
+  {
+    "id": 6,
+    "category": "Koltuk",
+    "name": "Kelebek Chester Kanepe",
+    "brand": "Kelebek",
+    "price": 28334,
+    "color": "Hardal (#C4A000)",
+    "style": "Modern",
+    "imageUrl": "https://picsum.photos/seed/ceyiz6/400/300"
+  },
+  {
+    "id": 7,
+    "category": "Koltuk",
+    "name": "Çilek Relax Köşe",
+    "brand": "Çilek",
+    "price": 32473,
+    "color": "Antrasit (#36454F)",
+    "style": "Modern",
+    "imageUrl": "https://picsum.photos/seed/ceyiz7/400/300"
+  },
+  {
+    "id": 8,
+    "category": "Koltuk",
+    "name": "Vitra Köşe Takımı",
+    "brand": "Vitra",
+    "price": 36612,
+    "color": "Lacivert (#1E3A5F)",
+    "style": "Modern",
+    "imageUrl": "https://picsum.photos/seed/ceyiz8/400/300"
+  },
+  {
+    "id": 9,
+    "category": "Koltuk",
+    "name": "İstikbal Üçlü Koltuk",
+    "brand": "İstikbal",
+    "price": 40751,
+    "color": "Gri (#808080)",
+    "style": "Modern",
+    "imageUrl": "https://picsum.photos/seed/ceyiz9/400/300"
+  },
+  {
+    "id": 10,
+    "category": "Koltuk",
+    "name": "Bellona İkili Kanepe",
+    "brand": "Bellona",
+    "price": 44890,
+    "color": "Beyaz (#F8F8F8)",
+    "style": "Modern",
+    "imageUrl": "https://picsum.photos/seed/ceyiz10/400/300"
+  },
+  {
+    "id": 11,
+    "category": "Koltuk",
+    "name": "Mondi Berjer",
+    "brand": "Mondi",
+    "price": 49029,
+    "color": "Zeytin (#3D4F3D)",
+    "style": "Modern",
+    "imageUrl": "https://picsum.photos/seed/ceyiz11/400/300"
+  },
+  {
+    "id": 12,
+    "category": "Koltuk",
+    "name": "Doğtaş Modüler Grup",
+    "brand": "Doğtaş",
+    "price": 6668,
+    "color": "Hardal (#C4A000)",
+    "style": "Modern",
+    "imageUrl": "https://picsum.photos/seed/ceyiz12/400/300"
+  },
+  {
+    "id": 13,
+    "category": "Koltuk",
+    "name": "Mondi İkili Kanepe",
+    "brand": "Mondi",
+    "price": 10807,
+    "color": "Beyaz (#F8F8F8)",
+    "style": "Klasik",
+    "imageUrl": "https://picsum.photos/seed/ceyiz13/400/300"
+  },
+  {
+    "id": 14,
+    "category": "Koltuk",
+    "name": "Doğtaş Berjer",
+    "brand": "Doğtaş",
+    "price": 14946,
+    "color": "Bordo (#722F37)",
+    "style": "Klasik",
+    "imageUrl": "https://picsum.photos/seed/ceyiz14/400/300"
+  },
+  {
+    "id": 15,
+    "category": "Koltuk",
+    "name": "Kelebek Modüler Grup",
+    "brand": "Kelebek",
+    "price": 19085,
+    "color": "Krem (#F5F5DC)",
+    "style": "Klasik",
+    "imageUrl": "https://picsum.photos/seed/ceyiz15/400/300"
+  },
+  {
+    "id": 16,
+    "category": "Koltuk",
+    "name": "Çilek Chester Kanepe",
+    "brand": "Çilek",
+    "price": 23224,
+    "color": "Bej (#C4A77D)",
+    "style": "Klasik",
+    "imageUrl": "https://picsum.photos/seed/ceyiz16/400/300"
+  },
+  {
+    "id": 17,
+    "category": "Koltuk",
+    "name": "Vitra Relax Köşe",
+    "brand": "Vitra",
+    "price": 27363,
+    "color": "Lacivert (#1E3A5F)",
+    "style": "Klasik",
+    "imageUrl": "https://picsum.photos/seed/ceyiz17/400/300"
+  },
+  {
+    "id": 18,
+    "category": "Koltuk",
+    "name": "İstikbal Köşe Takımı",
+    "brand": "İstikbal",
+    "price": 31502,
+    "color": "Altın Yaldız (#C5A059)",
+    "style": "Klasik",
+    "imageUrl": "https://picsum.photos/seed/ceyiz18/400/300"
+  },
+  {
+    "id": 19,
+    "category": "Koltuk",
+    "name": "Bellona Üçlü Koltuk",
+    "brand": "Bellona",
+    "price": 35641,
+    "color": "Kahve (#5C4033)",
+    "style": "Klasik",
+    "imageUrl": "https://picsum.photos/seed/ceyiz19/400/300"
+  },
+  {
+    "id": 20,
+    "category": "Koltuk",
+    "name": "Mondi İkili Kanepe",
+    "brand": "Mondi",
+    "price": 39780,
+    "color": "Beyaz (#F8F8F8)",
+    "style": "Klasik",
+    "imageUrl": "https://picsum.photos/seed/ceyiz20/400/300"
+  },
+  {
+    "id": 21,
+    "category": "Koltuk",
+    "name": "Doğtaş Berjer",
+    "brand": "Doğtaş",
+    "price": 43919,
+    "color": "Bordo (#722F37)",
+    "style": "Klasik",
+    "imageUrl": "https://picsum.photos/seed/ceyiz21/400/300"
+  },
+  {
+    "id": 22,
+    "category": "Koltuk",
+    "name": "Kelebek Modüler Grup",
+    "brand": "Kelebek",
+    "price": 48058,
+    "color": "Krem (#F5F5DC)",
+    "style": "Klasik",
+    "imageUrl": "https://picsum.photos/seed/ceyiz22/400/300"
+  },
+  {
+    "id": 23,
+    "category": "Koltuk",
+    "name": "Çilek Chester Kanepe",
+    "brand": "Çilek",
+    "price": 5697,
+    "color": "Bej (#C4A77D)",
+    "style": "Klasik",
+    "imageUrl": "https://picsum.photos/seed/ceyiz23/400/300"
+  },
+  {
+    "id": 24,
+    "category": "Koltuk",
+    "name": "Vitra Relax Köşe",
+    "brand": "Vitra",
+    "price": 9836,
+    "color": "Lacivert (#1E3A5F)",
+    "style": "Klasik",
+    "imageUrl": "https://picsum.photos/seed/ceyiz24/400/300"
+  },
+  {
+    "id": 25,
+    "category": "Koltuk",
+    "name": "İstikbal Modüler Grup Nötr",
+    "brand": "İstikbal",
+    "price": 13975,
+    "color": "Beyaz (#F8F8F8)",
+    "style": "Nötr",
+    "imageUrl": "https://picsum.photos/seed/ceyiz25/400/300"
+  },
+  {
+    "id": 26,
+    "category": "Koltuk",
+    "name": "Bellona Chester Kanepe Nötr",
+    "brand": "Bellona",
+    "price": 18114,
+    "color": "Bej (#C4A77D)",
+    "style": "Nötr",
+    "imageUrl": "https://picsum.photos/seed/ceyiz26/400/300"
+  },
+  {
+    "id": 27,
+    "category": "Koltuk",
+    "name": "Mondi Relax Köşe Nötr",
+    "brand": "Mondi",
+    "price": 22253,
+    "color": "Gri (#808080)",
+    "style": "Nötr",
+    "imageUrl": "https://picsum.photos/seed/ceyiz27/400/300"
+  },
+  {
+    "id": 28,
+    "category": "Koltuk",
+    "name": "Doğtaş Köşe Takımı Nötr",
+    "brand": "Doğtaş",
+    "price": 26392,
+    "color": "Krem (#F5F5DC)",
+    "style": "Nötr",
+    "imageUrl": "https://picsum.photos/seed/ceyiz28/400/300"
+  },
+  {
+    "id": 29,
+    "category": "Koltuk",
+    "name": "Kelebek Üçlü Koltuk Zamansız",
+    "brand": "Kelebek",
+    "price": 30531,
+    "color": "Gri (#808080)",
+    "style": "Zamansız",
+    "imageUrl": "https://picsum.photos/seed/ceyiz29/400/300"
+  },
+  {
+    "id": 30,
+    "category": "Koltuk",
+    "name": "Çilek İkili Kanepe Zamansız",
+    "brand": "Çilek",
+    "price": 34670,
+    "color": "Krem (#F5F5DC)",
+    "style": "Zamansız",
+    "imageUrl": "https://picsum.photos/seed/ceyiz30/400/300"
+  },
+  {
+    "id": 31,
+    "category": "Koltuk",
+    "name": "Vitra Berjer Zamansız",
+    "brand": "Vitra",
+    "price": 38809,
+    "color": "Beyaz (#F8F8F8)",
+    "style": "Zamansız",
+    "imageUrl": "https://picsum.photos/seed/ceyiz31/400/300"
+  },
+  {
+    "id": 32,
+    "category": "Koltuk",
+    "name": "İstikbal Modüler Grup Zamansız",
+    "brand": "İstikbal",
+    "price": 42948,
+    "color": "Bej (#C4A77D)",
+    "style": "Zamansız",
+    "imageUrl": "https://picsum.photos/seed/ceyiz32/400/300"
+  },
+  {
+    "id": 33,
+    "category": "Halı",
+    "name": "Merinos Halı",
+    "brand": "Merinos",
+    "price": 47087,
+    "color": "Antrasit (#36454F)",
+    "style": "Modern",
+    "imageUrl": "https://picsum.photos/seed/ceyiz33/400/300"
+  },
+  {
+    "id": 34,
+    "category": "Halı",
+    "name": "Saray Kilim",
+    "brand": "Saray",
+    "price": 4726,
+    "color": "Lacivert (#1E3A5F)",
+    "style": "Modern",
+    "imageUrl": "https://picsum.photos/seed/ceyiz34/400/300"
+  },
+  {
+    "id": 35,
+    "category": "Halı",
+    "name": "Padişah Shaggy Halı",
+    "brand": "Padişah",
+    "price": 8865,
+    "color": "Gri (#808080)",
+    "style": "Modern",
+    "imageUrl": "https://picsum.photos/seed/ceyiz35/400/300"
+  },
+  {
+    "id": 36,
+    "category": "Halı",
+    "name": "Angora Yolluk",
+    "brand": "Angora",
+    "price": 13004,
+    "color": "Beyaz (#F8F8F8)",
+    "style": "Modern",
+    "imageUrl": "https://picsum.photos/seed/ceyiz36/400/300"
+  },
+  {
+    "id": 37,
+    "category": "Halı",
+    "name": "Sanat Oda Halısı",
+    "brand": "Sanat",
+    "price": 17143,
+    "color": "Zeytin (#3D4F3D)",
+    "style": "Modern",
+    "imageUrl": "https://picsum.photos/seed/ceyiz37/400/300"
+  },
+  {
+    "id": 38,
+    "category": "Halı",
+    "name": "Atlas Patchwork",
+    "brand": "Atlas",
+    "price": 21282,
+    "color": "Hardal (#C4A000)",
+    "style": "Modern",
+    "imageUrl": "https://picsum.photos/seed/ceyiz38/400/300"
+  },
+  {
+    "id": 39,
+    "category": "Halı",
+    "name": "Merinos Vintage Halı",
+    "brand": "Merinos",
+    "price": 25421,
+    "color": "Antrasit (#36454F)",
+    "style": "Modern",
+    "imageUrl": "https://picsum.photos/seed/ceyiz39/400/300"
+  },
+  {
+    "id": 40,
+    "category": "Halı",
+    "name": "Saray Halı",
+    "brand": "Saray",
+    "price": 29560,
+    "color": "Lacivert (#1E3A5F)",
+    "style": "Modern",
+    "imageUrl": "https://picsum.photos/seed/ceyiz40/400/300"
+  },
+  {
+    "id": 41,
+    "category": "Halı",
+    "name": "Padişah Kilim",
+    "brand": "Padişah",
+    "price": 33699,
+    "color": "Gri (#808080)",
+    "style": "Modern",
+    "imageUrl": "https://picsum.photos/seed/ceyiz41/400/300"
+  },
+  {
+    "id": 42,
+    "category": "Halı",
+    "name": "Angora Shaggy Halı",
+    "brand": "Angora",
+    "price": 37838,
+    "color": "Beyaz (#F8F8F8)",
+    "style": "Modern",
+    "imageUrl": "https://picsum.photos/seed/ceyiz42/400/300"
+  },
+  {
+    "id": 43,
+    "category": "Halı",
+    "name": "Sanat Yolluk",
+    "brand": "Sanat",
+    "price": 41977,
+    "color": "Zeytin (#3D4F3D)",
+    "style": "Modern",
+    "imageUrl": "https://picsum.photos/seed/ceyiz43/400/300"
+  },
+  {
+    "id": 44,
+    "category": "Halı",
+    "name": "Atlas Oda Halısı",
+    "brand": "Atlas",
+    "price": 46116,
+    "color": "Hardal (#C4A000)",
+    "style": "Modern",
+    "imageUrl": "https://picsum.photos/seed/ceyiz44/400/300"
+  },
+  {
+    "id": 45,
+    "category": "Halı",
+    "name": "Angora Shaggy Halı",
+    "brand": "Angora",
+    "price": 3755,
+    "color": "Beyaz (#F8F8F8)",
+    "style": "Klasik",
+    "imageUrl": "https://picsum.photos/seed/ceyiz45/400/300"
+  },
+  {
+    "id": 46,
+    "category": "Halı",
+    "name": "Sanat Yolluk",
+    "brand": "Sanat",
+    "price": 7894,
+    "color": "Bordo (#722F37)",
+    "style": "Klasik",
+    "imageUrl": "https://picsum.photos/seed/ceyiz46/400/300"
+  },
+  {
+    "id": 47,
+    "category": "Halı",
+    "name": "Atlas Oda Halısı",
+    "brand": "Atlas",
+    "price": 12033,
+    "color": "Krem (#F5F5DC)",
+    "style": "Klasik",
+    "imageUrl": "https://picsum.photos/seed/ceyiz47/400/300"
+  },
+  {
+    "id": 48,
+    "category": "Halı",
+    "name": "Merinos Patchwork",
+    "brand": "Merinos",
+    "price": 16172,
+    "color": "Bej (#C4A77D)",
+    "style": "Klasik",
+    "imageUrl": "https://picsum.photos/seed/ceyiz48/400/300"
+  },
+  {
+    "id": 49,
+    "category": "Halı",
+    "name": "Saray Vintage Halı",
+    "brand": "Saray",
+    "price": 20311,
+    "color": "Lacivert (#1E3A5F)",
+    "style": "Klasik",
+    "imageUrl": "https://picsum.photos/seed/ceyiz49/400/300"
+  },
+  {
+    "id": 50,
+    "category": "Halı",
+    "name": "Padişah Halı",
+    "brand": "Padişah",
+    "price": 24450,
+    "color": "Altın Yaldız (#C5A059)",
+    "style": "Klasik",
+    "imageUrl": "https://picsum.photos/seed/ceyiz50/400/300"
+  },
+  {
+    "id": 51,
+    "category": "Halı",
+    "name": "Angora Kilim",
+    "brand": "Angora",
+    "price": 28589,
+    "color": "Kahve (#5C4033)",
+    "style": "Klasik",
+    "imageUrl": "https://picsum.photos/seed/ceyiz51/400/300"
+  },
+  {
+    "id": 52,
+    "category": "Halı",
+    "name": "Sanat Shaggy Halı",
+    "brand": "Sanat",
+    "price": 32728,
+    "color": "Beyaz (#F8F8F8)",
+    "style": "Klasik",
+    "imageUrl": "https://picsum.photos/seed/ceyiz52/400/300"
+  },
+  {
+    "id": 53,
+    "category": "Halı",
+    "name": "Atlas Yolluk",
+    "brand": "Atlas",
+    "price": 36867,
+    "color": "Bordo (#722F37)",
+    "style": "Klasik",
+    "imageUrl": "https://picsum.photos/seed/ceyiz53/400/300"
+  },
+  {
+    "id": 54,
+    "category": "Halı",
+    "name": "Merinos Oda Halısı",
+    "brand": "Merinos",
+    "price": 41006,
+    "color": "Krem (#F5F5DC)",
+    "style": "Klasik",
+    "imageUrl": "https://picsum.photos/seed/ceyiz54/400/300"
+  },
+  {
+    "id": 55,
+    "category": "Halı",
+    "name": "Saray Patchwork",
+    "brand": "Saray",
+    "price": 45145,
+    "color": "Bej (#C4A77D)",
+    "style": "Klasik",
+    "imageUrl": "https://picsum.photos/seed/ceyiz55/400/300"
+  },
+  {
+    "id": 56,
+    "category": "Halı",
+    "name": "Padişah Vintage Halı",
+    "brand": "Padişah",
+    "price": 49284,
+    "color": "Lacivert (#1E3A5F)",
+    "style": "Klasik",
+    "imageUrl": "https://picsum.photos/seed/ceyiz56/400/300"
+  },
+  {
+    "id": 57,
+    "category": "Halı",
+    "name": "Saray Oda Halısı Nötr",
+    "brand": "Saray",
+    "price": 6923,
+    "color": "Beyaz (#F8F8F8)",
+    "style": "Nötr",
+    "imageUrl": "https://picsum.photos/seed/ceyiz57/400/300"
+  },
+  {
+    "id": 58,
+    "category": "Halı",
+    "name": "Padişah Patchwork Nötr",
+    "brand": "Padişah",
+    "price": 11062,
+    "color": "Bej (#C4A77D)",
+    "style": "Nötr",
+    "imageUrl": "https://picsum.photos/seed/ceyiz58/400/300"
+  },
+  {
+    "id": 59,
+    "category": "Halı",
+    "name": "Angora Vintage Halı Nötr",
+    "brand": "Angora",
+    "price": 15201,
+    "color": "Gri (#808080)",
+    "style": "Nötr",
+    "imageUrl": "https://picsum.photos/seed/ceyiz59/400/300"
+  },
+  {
+    "id": 60,
+    "category": "Halı",
+    "name": "Sanat Halı Nötr",
+    "brand": "Sanat",
+    "price": 19340,
+    "color": "Krem (#F5F5DC)",
+    "style": "Nötr",
+    "imageUrl": "https://picsum.photos/seed/ceyiz60/400/300"
+  },
+  {
+    "id": 61,
+    "category": "Halı",
+    "name": "Atlas Kilim Zamansız",
+    "brand": "Atlas",
+    "price": 23479,
+    "color": "Gri (#808080)",
+    "style": "Zamansız",
+    "imageUrl": "https://picsum.photos/seed/ceyiz61/400/300"
+  },
+  {
+    "id": 62,
+    "category": "Halı",
+    "name": "Merinos Shaggy Halı Zamansız",
+    "brand": "Merinos",
+    "price": 27618,
+    "color": "Krem (#F5F5DC)",
+    "style": "Zamansız",
+    "imageUrl": "https://picsum.photos/seed/ceyiz62/400/300"
+  },
+  {
+    "id": 63,
+    "category": "Halı",
+    "name": "Saray Yolluk Zamansız",
+    "brand": "Saray",
+    "price": 31757,
+    "color": "Beyaz (#F8F8F8)",
+    "style": "Zamansız",
+    "imageUrl": "https://picsum.photos/seed/ceyiz63/400/300"
+  },
+  {
+    "id": 64,
+    "category": "Halı",
+    "name": "Padişah Oda Halısı Zamansız",
+    "brand": "Padişah",
+    "price": 35896,
+    "color": "Bej (#C4A77D)",
+    "style": "Zamansız",
+    "imageUrl": "https://picsum.photos/seed/ceyiz64/400/300"
+  },
+  {
+    "id": 65,
+    "category": "Yemek Masası",
+    "name": "İstikbal Yemek Masası",
+    "brand": "İstikbal",
+    "price": 40035,
+    "color": "Antrasit (#36454F)",
+    "style": "Modern",
+    "imageUrl": "https://picsum.photos/seed/ceyiz65/400/300"
+  },
+  {
+    "id": 66,
+    "category": "Yemek Masası",
+    "name": "Bellona Uzatmalı Masa",
+    "brand": "Bellona",
+    "price": 44174,
+    "color": "Lacivert (#1E3A5F)",
+    "style": "Modern",
+    "imageUrl": "https://picsum.photos/seed/ceyiz66/400/300"
+  },
+  {
+    "id": 67,
+    "category": "Yemek Masası",
+    "name": "Doğtaş Cam Masa",
+    "brand": "Doğtaş",
+    "price": 48313,
+    "color": "Gri (#808080)",
+    "style": "Modern",
+    "imageUrl": "https://picsum.photos/seed/ceyiz67/400/300"
+  },
+  {
+    "id": 68,
+    "category": "Yemek Masası",
+    "name": "Mondi Ahşap Masa",
+    "brand": "Mondi",
+    "price": 5952,
+    "color": "Beyaz (#F8F8F8)",
+    "style": "Modern",
+    "imageUrl": "https://picsum.photos/seed/ceyiz68/400/300"
+  },
+  {
+    "id": 69,
+    "category": "Yemek Masası",
+    "name": "Çilek Bar Masası",
+    "brand": "Çilek",
+    "price": 10091,
+    "color": "Zeytin (#3D4F3D)",
+    "style": "Modern",
+    "imageUrl": "https://picsum.photos/seed/ceyiz69/400/300"
+  },
+  {
+    "id": 70,
+    "category": "Yemek Masası",
+    "name": "Kelebek Cemre Masa",
+    "brand": "Kelebek",
+    "price": 14230,
+    "color": "Hardal (#C4A000)",
+    "style": "Modern",
+    "imageUrl": "https://picsum.photos/seed/ceyiz70/400/300"
+  },
+  {
+    "id": 71,
+    "category": "Yemek Masası",
+    "name": "İstikbal Mermer Desenli Masa",
+    "brand": "İstikbal",
+    "price": 18369,
+    "color": "Antrasit (#36454F)",
+    "style": "Modern",
+    "imageUrl": "https://picsum.photos/seed/ceyiz71/400/300"
+  },
+  {
+    "id": 72,
+    "category": "Yemek Masası",
+    "name": "Bellona Yemek Masası",
+    "brand": "Bellona",
+    "price": 22508,
+    "color": "Lacivert (#1E3A5F)",
+    "style": "Modern",
+    "imageUrl": "https://picsum.photos/seed/ceyiz72/400/300"
+  },
+  {
+    "id": 73,
+    "category": "Yemek Masası",
+    "name": "Doğtaş Uzatmalı Masa",
+    "brand": "Doğtaş",
+    "price": 26647,
+    "color": "Gri (#808080)",
+    "style": "Modern",
+    "imageUrl": "https://picsum.photos/seed/ceyiz73/400/300"
+  },
+  {
+    "id": 74,
+    "category": "Yemek Masası",
+    "name": "Mondi Cam Masa",
+    "brand": "Mondi",
+    "price": 30786,
+    "color": "Beyaz (#F8F8F8)",
+    "style": "Modern",
+    "imageUrl": "https://picsum.photos/seed/ceyiz74/400/300"
+  },
+  {
+    "id": 75,
+    "category": "Yemek Masası",
+    "name": "Çilek Ahşap Masa",
+    "brand": "Çilek",
+    "price": 34925,
+    "color": "Zeytin (#3D4F3D)",
+    "style": "Modern",
+    "imageUrl": "https://picsum.photos/seed/ceyiz75/400/300"
+  },
+  {
+    "id": 76,
+    "category": "Yemek Masası",
+    "name": "Kelebek Bar Masası",
+    "brand": "Kelebek",
+    "price": 39064,
+    "color": "Hardal (#C4A000)",
+    "style": "Modern",
+    "imageUrl": "https://picsum.photos/seed/ceyiz76/400/300"
+  },
+  {
+    "id": 77,
+    "category": "Yemek Masası",
+    "name": "Mondi Cam Masa",
+    "brand": "Mondi",
+    "price": 43203,
+    "color": "Beyaz (#F8F8F8)",
+    "style": "Klasik",
+    "imageUrl": "https://picsum.photos/seed/ceyiz77/400/300"
+  },
+  {
+    "id": 78,
+    "category": "Yemek Masası",
+    "name": "Çilek Ahşap Masa",
+    "brand": "Çilek",
+    "price": 47342,
+    "color": "Bordo (#722F37)",
+    "style": "Klasik",
+    "imageUrl": "https://picsum.photos/seed/ceyiz78/400/300"
+  },
+  {
+    "id": 79,
+    "category": "Yemek Masası",
+    "name": "Kelebek Bar Masası",
+    "brand": "Kelebek",
+    "price": 4981,
+    "color": "Krem (#F5F5DC)",
+    "style": "Klasik",
+    "imageUrl": "https://picsum.photos/seed/ceyiz79/400/300"
+  },
+  {
+    "id": 80,
+    "category": "Yemek Masası",
+    "name": "İstikbal Cemre Masa",
+    "brand": "İstikbal",
+    "price": 9120,
+    "color": "Bej (#C4A77D)",
+    "style": "Klasik",
+    "imageUrl": "https://picsum.photos/seed/ceyiz80/400/300"
+  },
+  {
+    "id": 81,
+    "category": "Yemek Masası",
+    "name": "Bellona Mermer Desenli Masa",
+    "brand": "Bellona",
+    "price": 13259,
+    "color": "Lacivert (#1E3A5F)",
+    "style": "Klasik",
+    "imageUrl": "https://picsum.photos/seed/ceyiz81/400/300"
+  },
+  {
+    "id": 82,
+    "category": "Yemek Masası",
+    "name": "Doğtaş Yemek Masası",
+    "brand": "Doğtaş",
+    "price": 17398,
+    "color": "Altın Yaldız (#C5A059)",
+    "style": "Klasik",
+    "imageUrl": "https://picsum.photos/seed/ceyiz82/400/300"
+  },
+  {
+    "id": 83,
+    "category": "Yemek Masası",
+    "name": "Mondi Uzatmalı Masa",
+    "brand": "Mondi",
+    "price": 21537,
+    "color": "Kahve (#5C4033)",
+    "style": "Klasik",
+    "imageUrl": "https://picsum.photos/seed/ceyiz83/400/300"
+  },
+  {
+    "id": 84,
+    "category": "Yemek Masası",
+    "name": "Çilek Cam Masa",
+    "brand": "Çilek",
+    "price": 25676,
+    "color": "Beyaz (#F8F8F8)",
+    "style": "Klasik",
+    "imageUrl": "https://picsum.photos/seed/ceyiz84/400/300"
+  },
+  {
+    "id": 85,
+    "category": "Yemek Masası",
+    "name": "Kelebek Ahşap Masa",
+    "brand": "Kelebek",
+    "price": 29815,
+    "color": "Bordo (#722F37)",
+    "style": "Klasik",
+    "imageUrl": "https://picsum.photos/seed/ceyiz85/400/300"
+  },
+  {
+    "id": 86,
+    "category": "Yemek Masası",
+    "name": "İstikbal Bar Masası",
+    "brand": "İstikbal",
+    "price": 33954,
+    "color": "Krem (#F5F5DC)",
+    "style": "Klasik",
+    "imageUrl": "https://picsum.photos/seed/ceyiz86/400/300"
+  },
+  {
+    "id": 87,
+    "category": "Yemek Masası",
+    "name": "Bellona Cemre Masa",
+    "brand": "Bellona",
+    "price": 38093,
+    "color": "Bej (#C4A77D)",
+    "style": "Klasik",
+    "imageUrl": "https://picsum.photos/seed/ceyiz87/400/300"
+  },
+  {
+    "id": 88,
+    "category": "Yemek Masası",
+    "name": "Doğtaş Mermer Desenli Masa",
+    "brand": "Doğtaş",
+    "price": 42232,
+    "color": "Lacivert (#1E3A5F)",
+    "style": "Klasik",
+    "imageUrl": "https://picsum.photos/seed/ceyiz88/400/300"
+  },
+  {
+    "id": 89,
+    "category": "Yemek Masası",
+    "name": "Bellona Bar Masası Nötr",
+    "brand": "Bellona",
+    "price": 46371,
+    "color": "Beyaz (#F8F8F8)",
+    "style": "Nötr",
+    "imageUrl": "https://picsum.photos/seed/ceyiz89/400/300"
+  },
+  {
+    "id": 90,
+    "category": "Yemek Masası",
+    "name": "Doğtaş Cemre Masa Nötr",
+    "brand": "Doğtaş",
+    "price": 4010,
+    "color": "Bej (#C4A77D)",
+    "style": "Nötr",
+    "imageUrl": "https://picsum.photos/seed/ceyiz90/400/300"
+  },
+  {
+    "id": 91,
+    "category": "Yemek Masası",
+    "name": "Mondi Mermer Desenli Masa Nötr",
+    "brand": "Mondi",
+    "price": 8149,
+    "color": "Gri (#808080)",
+    "style": "Nötr",
+    "imageUrl": "https://picsum.photos/seed/ceyiz91/400/300"
+  },
+  {
+    "id": 92,
+    "category": "Yemek Masası",
+    "name": "Çilek Yemek Masası Nötr",
+    "brand": "Çilek",
+    "price": 12288,
+    "color": "Krem (#F5F5DC)",
+    "style": "Nötr",
+    "imageUrl": "https://picsum.photos/seed/ceyiz92/400/300"
+  },
+  {
+    "id": 93,
+    "category": "Yemek Masası",
+    "name": "Kelebek Uzatmalı Masa Zamansız",
+    "brand": "Kelebek",
+    "price": 16427,
+    "color": "Gri (#808080)",
+    "style": "Zamansız",
+    "imageUrl": "https://picsum.photos/seed/ceyiz93/400/300"
+  },
+  {
+    "id": 94,
+    "category": "Yemek Masası",
+    "name": "İstikbal Cam Masa Zamansız",
+    "brand": "İstikbal",
+    "price": 20566,
+    "color": "Krem (#F5F5DC)",
+    "style": "Zamansız",
+    "imageUrl": "https://picsum.photos/seed/ceyiz94/400/300"
+  },
+  {
+    "id": 95,
+    "category": "Yemek Masası",
+    "name": "Bellona Ahşap Masa Zamansız",
+    "brand": "Bellona",
+    "price": 24705,
+    "color": "Beyaz (#F8F8F8)",
+    "style": "Zamansız",
+    "imageUrl": "https://picsum.photos/seed/ceyiz95/400/300"
+  },
+  {
+    "id": 96,
+    "category": "Yemek Masası",
+    "name": "Doğtaş Bar Masası Zamansız",
+    "brand": "Doğtaş",
+    "price": 28844,
+    "color": "Bej (#C4A77D)",
+    "style": "Zamansız",
+    "imageUrl": "https://picsum.photos/seed/ceyiz96/400/300"
+  },
+  {
+    "id": 97,
+    "category": "Aydınlatma",
+    "name": "Philips Avize",
+    "brand": "Philips",
+    "price": 32983,
+    "color": "Antrasit (#36454F)",
+    "style": "Modern",
+    "imageUrl": "https://picsum.photos/seed/ceyiz97/400/300"
+  },
+  {
+    "id": 98,
+    "category": "Aydınlatma",
+    "name": "EGLO Lambader",
+    "brand": "EGLO",
+    "price": 37122,
+    "color": "Lacivert (#1E3A5F)",
+    "style": "Modern",
+    "imageUrl": "https://picsum.photos/seed/ceyiz98/400/300"
+  },
+  {
+    "id": 99,
+    "category": "Aydınlatma",
+    "name": "Osram Spot Set",
+    "brand": "Osram",
+    "price": 41261,
+    "color": "Gri (#808080)",
+    "style": "Modern",
+    "imageUrl": "https://picsum.photos/seed/ceyiz99/400/300"
+  },
+  {
+    "id": 100,
+    "category": "Aydınlatma",
+    "name": "İkea Sarkıt",
+    "brand": "İkea",
+    "price": 45400,
+    "color": "Beyaz (#F8F8F8)",
+    "style": "Modern",
+    "imageUrl": "https://picsum.photos/seed/ceyiz100/400/300"
+  },
+  {
+    "id": 101,
+    "category": "Aydınlatma",
+    "name": "Horoz Masa Lambası",
+    "brand": "Horoz",
+    "price": 49539,
+    "color": "Zeytin (#3D4F3D)",
+    "style": "Modern",
+    "imageUrl": "https://picsum.photos/seed/ceyiz101/400/300"
+  },
+  {
+    "id": 102,
+    "category": "Aydınlatma",
+    "name": "AVONNI Duvar Aplik",
+    "brand": "AVONNI",
+    "price": 7178,
+    "color": "Hardal (#C4A000)",
+    "style": "Modern",
+    "imageUrl": "https://picsum.photos/seed/ceyiz102/400/300"
+  },
+  {
+    "id": 103,
+    "category": "Aydınlatma",
+    "name": "Philips LED Panel",
+    "brand": "Philips",
+    "price": 11317,
+    "color": "Antrasit (#36454F)",
+    "style": "Modern",
+    "imageUrl": "https://picsum.photos/seed/ceyiz103/400/300"
+  },
+  {
+    "id": 104,
+    "category": "Aydınlatma",
+    "name": "EGLO Avize",
+    "brand": "EGLO",
+    "price": 15456,
+    "color": "Lacivert (#1E3A5F)",
+    "style": "Modern",
+    "imageUrl": "https://picsum.photos/seed/ceyiz104/400/300"
+  },
+  {
+    "id": 105,
+    "category": "Aydınlatma",
+    "name": "Osram Lambader",
+    "brand": "Osram",
+    "price": 19595,
+    "color": "Gri (#808080)",
+    "style": "Modern",
+    "imageUrl": "https://picsum.photos/seed/ceyiz105/400/300"
+  },
+  {
+    "id": 106,
+    "category": "Aydınlatma",
+    "name": "İkea Spot Set",
+    "brand": "İkea",
+    "price": 23734,
+    "color": "Beyaz (#F8F8F8)",
+    "style": "Modern",
+    "imageUrl": "https://picsum.photos/seed/ceyiz106/400/300"
+  },
+  {
+    "id": 107,
+    "category": "Aydınlatma",
+    "name": "Horoz Sarkıt",
+    "brand": "Horoz",
+    "price": 27873,
+    "color": "Zeytin (#3D4F3D)",
+    "style": "Modern",
+    "imageUrl": "https://picsum.photos/seed/ceyiz107/400/300"
+  },
+  {
+    "id": 108,
+    "category": "Aydınlatma",
+    "name": "AVONNI Masa Lambası",
+    "brand": "AVONNI",
+    "price": 32012,
+    "color": "Hardal (#C4A000)",
+    "style": "Modern",
+    "imageUrl": "https://picsum.photos/seed/ceyiz108/400/300"
+  },
+  {
+    "id": 109,
+    "category": "Aydınlatma",
+    "name": "İkea Spot Set",
+    "brand": "İkea",
+    "price": 36151,
+    "color": "Beyaz (#F8F8F8)",
+    "style": "Klasik",
+    "imageUrl": "https://picsum.photos/seed/ceyiz109/400/300"
+  },
+  {
+    "id": 110,
+    "category": "Aydınlatma",
+    "name": "Horoz Sarkıt",
+    "brand": "Horoz",
+    "price": 40290,
+    "color": "Bordo (#722F37)",
+    "style": "Klasik",
+    "imageUrl": "https://picsum.photos/seed/ceyiz110/400/300"
+  },
+  {
+    "id": 111,
+    "category": "Aydınlatma",
+    "name": "AVONNI Masa Lambası",
+    "brand": "AVONNI",
+    "price": 44429,
+    "color": "Krem (#F5F5DC)",
+    "style": "Klasik",
+    "imageUrl": "https://picsum.photos/seed/ceyiz111/400/300"
+  },
+  {
+    "id": 112,
+    "category": "Aydınlatma",
+    "name": "Philips Duvar Aplik",
+    "brand": "Philips",
+    "price": 48568,
+    "color": "Bej (#C4A77D)",
+    "style": "Klasik",
+    "imageUrl": "https://picsum.photos/seed/ceyiz112/400/300"
+  },
+  {
+    "id": 113,
+    "category": "Aydınlatma",
+    "name": "EGLO LED Panel",
+    "brand": "EGLO",
+    "price": 6207,
+    "color": "Lacivert (#1E3A5F)",
+    "style": "Klasik",
+    "imageUrl": "https://picsum.photos/seed/ceyiz113/400/300"
+  },
+  {
+    "id": 114,
+    "category": "Aydınlatma",
+    "name": "Osram Avize",
+    "brand": "Osram",
+    "price": 10346,
+    "color": "Altın Yaldız (#C5A059)",
+    "style": "Klasik",
+    "imageUrl": "https://picsum.photos/seed/ceyiz114/400/300"
+  },
+  {
+    "id": 115,
+    "category": "Aydınlatma",
+    "name": "İkea Lambader",
+    "brand": "İkea",
+    "price": 14485,
+    "color": "Kahve (#5C4033)",
+    "style": "Klasik",
+    "imageUrl": "https://picsum.photos/seed/ceyiz115/400/300"
+  },
+  {
+    "id": 116,
+    "category": "Aydınlatma",
+    "name": "Horoz Spot Set",
+    "brand": "Horoz",
+    "price": 18624,
+    "color": "Beyaz (#F8F8F8)",
+    "style": "Klasik",
+    "imageUrl": "https://picsum.photos/seed/ceyiz116/400/300"
+  },
+  {
+    "id": 117,
+    "category": "Aydınlatma",
+    "name": "AVONNI Sarkıt",
+    "brand": "AVONNI",
+    "price": 22763,
+    "color": "Bordo (#722F37)",
+    "style": "Klasik",
+    "imageUrl": "https://picsum.photos/seed/ceyiz117/400/300"
+  },
+  {
+    "id": 118,
+    "category": "Aydınlatma",
+    "name": "Philips Masa Lambası",
+    "brand": "Philips",
+    "price": 26902,
+    "color": "Krem (#F5F5DC)",
+    "style": "Klasik",
+    "imageUrl": "https://picsum.photos/seed/ceyiz118/400/300"
+  },
+  {
+    "id": 119,
+    "category": "Aydınlatma",
+    "name": "EGLO Duvar Aplik",
+    "brand": "EGLO",
+    "price": 31041,
+    "color": "Bej (#C4A77D)",
+    "style": "Klasik",
+    "imageUrl": "https://picsum.photos/seed/ceyiz119/400/300"
+  },
+  {
+    "id": 120,
+    "category": "Aydınlatma",
+    "name": "Osram LED Panel",
+    "brand": "Osram",
+    "price": 35180,
+    "color": "Lacivert (#1E3A5F)",
+    "style": "Klasik",
+    "imageUrl": "https://picsum.photos/seed/ceyiz120/400/300"
+  },
+  {
+    "id": 121,
+    "category": "Aydınlatma",
+    "name": "EGLO Masa Lambası Nötr",
+    "brand": "EGLO",
+    "price": 39319,
+    "color": "Beyaz (#F8F8F8)",
+    "style": "Nötr",
+    "imageUrl": "https://picsum.photos/seed/ceyiz121/400/300"
+  },
+  {
+    "id": 122,
+    "category": "Aydınlatma",
+    "name": "Osram Duvar Aplik Nötr",
+    "brand": "Osram",
+    "price": 43458,
+    "color": "Bej (#C4A77D)",
+    "style": "Nötr",
+    "imageUrl": "https://picsum.photos/seed/ceyiz122/400/300"
+  },
+  {
+    "id": 123,
+    "category": "Aydınlatma",
+    "name": "İkea LED Panel Nötr",
+    "brand": "İkea",
+    "price": 47597,
+    "color": "Gri (#808080)",
+    "style": "Nötr",
+    "imageUrl": "https://picsum.photos/seed/ceyiz123/400/300"
+  },
+  {
+    "id": 124,
+    "category": "Aydınlatma",
+    "name": "Horoz Avize Nötr",
+    "brand": "Horoz",
+    "price": 5236,
+    "color": "Krem (#F5F5DC)",
+    "style": "Nötr",
+    "imageUrl": "https://picsum.photos/seed/ceyiz124/400/300"
+  },
+  {
+    "id": 125,
+    "category": "Aydınlatma",
+    "name": "AVONNI Lambader Zamansız",
+    "brand": "AVONNI",
+    "price": 9375,
+    "color": "Gri (#808080)",
+    "style": "Zamansız",
+    "imageUrl": "https://picsum.photos/seed/ceyiz125/400/300"
+  },
+  {
+    "id": 126,
+    "category": "Aydınlatma",
+    "name": "Philips Spot Set Zamansız",
+    "brand": "Philips",
+    "price": 13514,
+    "color": "Krem (#F5F5DC)",
+    "style": "Zamansız",
+    "imageUrl": "https://picsum.photos/seed/ceyiz126/400/300"
+  },
+  {
+    "id": 127,
+    "category": "Aydınlatma",
+    "name": "EGLO Sarkıt Zamansız",
+    "brand": "EGLO",
+    "price": 17653,
+    "color": "Beyaz (#F8F8F8)",
+    "style": "Zamansız",
+    "imageUrl": "https://picsum.photos/seed/ceyiz127/400/300"
+  },
+  {
+    "id": 128,
+    "category": "Aydınlatma",
+    "name": "Osram Masa Lambası Zamansız",
+    "brand": "Osram",
+    "price": 21792,
+    "color": "Bej (#C4A77D)",
+    "style": "Zamansız",
+    "imageUrl": "https://picsum.photos/seed/ceyiz128/400/300"
+  }
+]
