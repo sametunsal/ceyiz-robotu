@@ -33,3 +33,108 @@ body {
 .animate-fade-app {
   animation: fade-app-in 0.45s ease-out both;
 }
+
+@keyframes ceyiz-sheet-up {
+  from {
+    opacity: 0.92;
+    transform: translate3d(0, 100%, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.ceyiz-sheet-panel {
+  animation: ceyiz-sheet-up 0.32s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Çift kollu fiyat aralığı — rose track, dokunmatik dostu thumb */
+.ceyiz-dual-range {
+  position: relative;
+  height: 2.75rem;
+  margin-top: 0.25rem;
+}
+
+.ceyiz-dual-range__track {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 0.5rem;
+  transform: translateY(-50%);
+  border-radius: 9999px;
+  background: rgb(231 229 228);
+}
+
+.ceyiz-dual-range__fill {
+  position: absolute;
+  top: 50%;
+  height: 0.5rem;
+  transform: translateY(-50%);
+  border-radius: 9999px;
+  background: linear-gradient(
+    90deg,
+    rgb(251 113 133),
+    rgb(225 29 72)
+  );
+  pointer-events: none;
+}
+
+.ceyiz-dual-range input[type="range"] {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 2.75rem;
+  margin: 0;
+  background: none;
+  pointer-events: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.ceyiz-dual-range input[type="range"]::-webkit-slider-thumb {
+  pointer-events: auto;
+  -webkit-appearance: none;
+  width: 1.375rem;
+  height: 1.375rem;
+  min-width: 1.375rem;
+  min-height: 1.375rem;
+  border-radius: 9999px;
+  background: #fff;
+  border: 2px solid rgb(225 29 72);
+  box-shadow:
+    0 1px 3px rgb(0 0 0 / 0.12),
+    0 0 0 1px rgb(255 255 255 / 0.8) inset;
+  cursor: grab;
+  touch-action: none;
+}
+
+.ceyiz-dual-range input[type="range"]::-webkit-slider-thumb:active {
+  cursor: grabbing;
+  transform: scale(1.06);
+}
+
+.ceyiz-dual-range input[type="range"]::-moz-range-thumb {
+  pointer-events: auto;
+  width: 1.375rem;
+  height: 1.375rem;
+  border-radius: 9999px;
+  background: #fff;
+  border: 2px solid rgb(225 29 72);
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.12);
+  cursor: grab;
+  touch-action: none;
+}
+
+.ceyiz-dual-range input[type="range"]::-moz-range-track {
+  background: transparent;
+}
+
+.ceyiz-dual-range .ceyiz-dual-range__input--max {
+  z-index: 2;
+}
+
+.ceyiz-dual-range .ceyiz-dual-range__input--min {
+  z-index: 1;
+}

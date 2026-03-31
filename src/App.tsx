@@ -1,39 +1,32 @@
 import confetti from 'canvas-confetti'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
-  Armchair,
-  ArrowLeft,
-  ArrowRight,
   Bot,
   Check,
-  Copy,
   Home,
-  Lamp,
-  LayoutGrid,
+  ListOrdered,
   Loader2,
-  RectangleHorizontal,
   RotateCcw,
+  Settings,
+  SlidersHorizontal,
   Sparkles,
-  UtensilsCrossed,
-  Wallet,
-  X,
+  Undo2,
 } from 'lucide-react'
-import productsUrl from '../products.json?url'
-import type { Product } from './types/product'
+import type { Product, RoomId } from './types/product'
 import {
   buildInteriorNarrative,
   buildListClipboardText,
   computeStyleScore,
+  ROOM_ORDER,
 } from './aiInteriorReview'
+import { formatTry } from './formatMoney'
 import { generateCombinationCode } from './combinationCode'
-import {
-  displayColorName,
-  isHarmonyMatch,
-  minPriceInCategory,
-  resolveStepProducts,
-  sortWithHarmonyFirst,
-  type StyleListFallback,
-} from './smartWizard'
+import { ROOM_CATEGORY_STEPS } from './roomCategories'
+import { resolveStepProducts, sortWithHarmonyFirst } from './smartWizard'
+import { useBudget } from './hooks/useBudget'
+import { useCatalog } from './hooks/useCatalog'
+import { useSelections, isRoomFullySelected } from './hooks/useSelections'
+import { BudgetPanel, ProductGrid, CategoryTabs, SummaryModal } from './components'
 
 const SPEND_BAR_COLORS = [
   'bg-rose-500',
@@ -42,101 +35,68 @@ const SPEND_BAR_COLORS = [
   'bg-violet-500',
 ] as const
 
-const WIZARD_STEPS = [
-  { category: 'Koltuk', title: 'Koltuk Takımı' },
-  { category: 'Halı', title: 'Halı' },
-  { category: 'Yemek Masası', title: 'Yemek Masası' },
-  { category: 'Aydınlatma', title: 'Aydınlatma' },
-] as const
-
-type WizardCategory = (typeof WIZARD_STEPS)[number]['category']
-
-type Selections = Partial<Record<WizardCategory, Product>>
-
-const categoryIcon = (category: string) => {
-  switch (category) {
-    case 'Koltuk':
-      return Armchair
-    case 'Halı':
-      return RectangleHorizontal
-    case 'Yemek Masası':
-      return UtensilsCrossed
-    case 'Aydınlatma':
-      return Lamp
-    default:
-      return LayoutGrid
-  }
-}
-
-function formatTry(n: number) {
-  return new Intl.NumberFormat('tr-TR', {
-    style: 'currency',
-    currency: 'TRY',
-    maximumFractionDigits: 0,
-  }).format(n)
-}
-
-function parseBudgetInput(raw: string): number {
-  const cleaned = raw.replace(/\./g, '').replace(/\s/g, '').replace(',', '.')
-  const n = Number(cleaned)
-  return Number.isFinite(n) && n >= 0 ? Math.floor(n) : 0
-}
-
-function fallbackNotice(
-  lockedStyle: Product['style'] | undefined,
-  kind: StyleListFallback,
-): string | null {
-  if (kind === 'none' || !lockedStyle) return null
-  if (kind === 'neutral-alternate') {
-    const alt = lockedStyle === 'Klasik' ? 'Modern' : 'Klasik'
-    return `${lockedStyle} stilinde ürün bulamadık; senin için nötr renkli (Beyaz, Bej, Gri, Krem) ${alt} ve evrensel çizgide uyumlu parçaları listeledik.`
-  }
-  return 'Stil filtresi bu adımda sonuç vermedi; kategorideki tüm ürünleri gösteriyoruz — yine de paletine uygun bir seçim yapabilirsin.'
-}
+const CONFIG_ROOMS: { id: RoomId; tab: string }[] = [
+  { id: 'Salon', tab: 'SALON' },
+  { id: 'Mutfak', tab: 'MUTFAK' },
+  { id: 'Yatak Odası', tab: 'YATAK ODASI' },
+  { id: 'Antre', tab: 'ANTRE' },
+]
 
 export default function App() {
-  const [catalog, setCatalog] = useState<Product[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const { products, loading, error, bounds: priceBounds } = useCatalog()
+  const {
+    budget,
+    budgetInput,
+    budgetDirty,
+    setBudgetInput,
+    applyBudgetFromInput,
+  } = useBudget()
 
-  const [budgetInput, setBudgetInput] = useState('100000')
-  const [totalBudget, setTotalBudget] = useState(100_000)
-  const [budgetDirty, setBudgetDirty] = useState(false)
+  const [activeRoom, setActiveRoom] = useState<RoomId>('Salon')
+  const [activeCategory, setActiveCategory] = useState<string>('Koltuk')
+  const [brandFilter, setBrandFilter] = useState<string | null>(null)
+  const [priceRangeLo, setPriceRangeLo] = useState(0)
+  const [priceRangeHi, setPriceRangeHi] = useState(0)
 
-  const [currentStep, setCurrentStep] = useState(0)
-  const [selections, setSelections] = useState<Selections>({})
+  const {
+    selections,
+    selectProduct,
+    reset: resetSelections,
+    undo,
+    canUndo,
+    toggleFavorite,
+    isFavorite,
+    selectedCount,
+    allSlotsComplete: allSlotsCompleteFlag,
+    roomsWithSelections,
+    hasAnySelection,
+    totalCategorySlots,
+  } = useSelections()
+
   const [summaryOpen, setSummaryOpen] = useState(false)
   const [copyFeedback, setCopyFeedback] = useState(false)
   const [combinationCode, setCombinationCode] = useState<string | null>(null)
+  const [settingsOpen, setSettingsOpen] = useState(false)
+  const [mobileSummaryOpen, setMobileSummaryOpen] = useState(false)
+  const [mobileControlOpen, setMobileControlOpen] = useState(false)
+  const settingsWrapRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    let cancelled = false
-    setLoading(true)
-    setError(null)
-    fetch(productsUrl)
-      .then((r) => {
-        if (!r.ok) throw new Error('Ürün listesi alınamadı')
-        return r.json() as Promise<Product[]>
-      })
-      .then((data) => {
-        if (!cancelled) setCatalog(data)
-      })
-      .catch(() => {
-        if (!cancelled) setError('Veri yüklenirken bir hata oluştu.')
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false)
-      })
-    return () => {
-      cancelled = true
-    }
-  }, [])
+    const steps = ROOM_CATEGORY_STEPS[activeRoom]
+    setActiveCategory((prev) =>
+      steps.some((s) => s.category === prev) ? prev : steps[0].category,
+    )
+  }, [activeRoom])
 
-  const applyBudgetFromInput = useCallback(() => {
-    const next = parseBudgetInput(budgetInput)
-    if (next > 0) setTotalBudget(next)
-    setBudgetDirty(false)
-  }, [budgetInput])
+  useEffect(() => {
+    setBrandFilter(null)
+  }, [activeRoom, activeCategory])
+
+  useEffect(() => {
+    if (products.length === 0) return
+    setPriceRangeLo(priceBounds.min)
+    setPriceRangeHi(priceBounds.max)
+  }, [products.length, priceBounds.min, priceBounds.max])
 
   useEffect(() => {
     if (!summaryOpen) return
@@ -173,96 +133,163 @@ export default function App() {
     return () => cancelAnimationFrame(id)
   }, [summaryOpen])
 
+  useEffect(() => {
+    if (!settingsOpen) return
+    const onDoc = (e: MouseEvent) => {
+      if (
+        settingsWrapRef.current &&
+        !settingsWrapRef.current.contains(e.target as Node)
+      ) {
+        setSettingsOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', onDoc)
+    return () => document.removeEventListener('mousedown', onDoc)
+  }, [settingsOpen])
+
+  useEffect(() => {
+    if (!mobileSummaryOpen) return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setMobileSummaryOpen(false)
+    }
+    window.addEventListener('keydown', onKey)
+    const prev = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      window.removeEventListener('keydown', onKey)
+      document.body.style.overflow = prev
+    }
+  }, [mobileSummaryOpen])
+
+  useEffect(() => {
+    if (!mobileControlOpen) return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setMobileControlOpen(false)
+    }
+    window.addEventListener('keydown', onKey)
+    const prev = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      window.removeEventListener('keydown', onKey)
+      document.body.style.overflow = prev
+    }
+  }, [mobileControlOpen])
+
   const spent = useMemo(() => {
-    return Object.values(selections).reduce((sum, p) => sum + (p?.price ?? 0), 0)
+    let sum = 0
+    for (const room of ROOM_ORDER) {
+      for (const p of Object.values(selections[room])) {
+        if (p) sum += p.price
+      }
+    }
+    return sum
   }, [selections])
 
-  const remaining = totalBudget - spent
-  const safeTotal = totalBudget > 0 ? totalBudget : 1
+  const remaining = budget - spent
+  const safeTotal = budget > 0 ? budget : 1
   const remainingRatio = Math.min(1, Math.max(0, remaining / safeTotal))
   const overBudget = remaining < 0
 
-  const stepMeta = WIZARD_STEPS[currentStep]
-  const stepCategory = stepMeta.category
+  const perRoomBudgetShare = budget > 0 ? budget / ROOM_ORDER.length : 0
 
-  const sofa = selections.Koltuk
-  const lockedStyle = sofa?.style
-
-  const { stepProductsRaw, styleListFallback } = useMemo(() => {
-    const r = resolveStepProducts(
-      catalog,
-      stepCategory,
-      lockedStyle,
-      currentStep === 0,
-    )
-    return { stepProductsRaw: r.products, styleListFallback: r.fallback }
-  }, [catalog, stepCategory, lockedStyle, currentStep])
-
-  const stepProducts = useMemo(
-    () => sortWithHarmonyFirst(stepProductsRaw, sofa, currentStep),
-    [stepProductsRaw, sofa, currentStep],
+  const roomSpent = useCallback(
+    (room: RoomId) =>
+      Object.values(selections[room]).reduce(
+        (a, p) => a + (p?.price ?? 0),
+        0,
+      ),
+    [selections],
   )
 
-  const fallbackMessage = fallbackNotice(lockedStyle, styleListFallback)
+  const roomOverShare = useCallback(
+    (room: RoomId) =>
+      perRoomBudgetShare > 0 && roomSpent(room) > perRoomBudgetShare,
+    [perRoomBudgetShare, roomSpent],
+  )
 
-  const currentSelection = selections[stepCategory]
+  const stepsForActiveRoom = ROOM_CATEGORY_STEPS[activeRoom]
+  const stepMeta =
+    stepsForActiveRoom.find((s) => s.category === activeCategory) ??
+    stepsForActiveRoom[0]
 
-  const nextCategory =
-    currentStep < WIZARD_STEPS.length - 1
-      ? WIZARD_STEPS[currentStep + 1].category
-      : null
+  const catalogSlice = useMemo(
+    () =>
+      products.filter(
+        (p) => p.room === activeRoom && p.category === activeCategory,
+      ),
+    [products, activeRoom, activeCategory],
+  )
 
-  const nextCategoryMinPrice = useMemo(() => {
-    if (!nextCategory) return null
-    return minPriceInCategory(catalog, nextCategory, lockedStyle)
-  }, [catalog, nextCategory, lockedStyle])
-
-  const budgetBlocksNext =
-    Boolean(currentSelection) &&
-    nextCategoryMinPrice !== null &&
-    remaining < nextCategoryMinPrice
-
-  const canGoPrev = currentStep > 0
-  const canGoNext =
-    Boolean(currentSelection) &&
-    currentStep < WIZARD_STEPS.length - 1 &&
-    !budgetBlocksNext
-
-  const canJumpToStep = (index: number) => {
-    if (index === currentStep) return true
-    if (index < currentStep) return true
-    for (let i = 0; i < index; i++) {
-      const cat = WIZARD_STEPS[i].category
-      if (!selections[cat]) return false
+  const sofaForHarmony = useMemo(() => {
+    for (const room of ROOM_ORDER) {
+      const k = selections[room]?.['Koltuk']
+      if (k) return k
     }
-    return true
-  }
+    return undefined
+  }, [selections])
 
-  const selectProduct = (product: Product) => {
-    setSelections((prev) => {
-      if (stepCategory === 'Koltuk') {
-        return { Koltuk: product }
-      }
-      return { ...prev, [stepCategory]: product }
-    })
-  }
+  const stepProductsRaw = useMemo(() => {
+    const r = resolveStepProducts(catalogSlice, activeCategory, undefined, true)
+    return r.products
+  }, [catalogSlice, activeCategory])
 
-  const dynamicStepTitle = useMemo(() => {
-    if (currentStep === 0) return stepMeta.title
-    if (!sofa) return stepMeta.title
-    const color = displayColorName(sofa.color)
-    return `${color} ${sofa.style} koltuğuna uygun ${stepMeta.title} seçimi`
-  }, [currentStep, sofa, stepMeta.title])
+  const harmonyStepIndex = activeCategory === 'Koltuk' ? 0 : 1
 
-  const goPrev = () => {
-    if (canGoPrev) setCurrentStep((s) => s - 1)
-  }
+  const brandOptions = useMemo(() => {
+    const uniq = new Set(stepProductsRaw.map((p: Product) => p.brand))
+    return [...uniq].sort((a, b) =>
+      a.localeCompare(b, 'tr', { sensitivity: 'base' }),
+    )
+  }, [stepProductsRaw])
 
-  const goNext = () => {
-    if (canGoNext) setCurrentStep((s) => s + 1)
-  }
+  const stepProductsSorted = useMemo(
+    () =>
+      sortWithHarmonyFirst(stepProductsRaw, sofaForHarmony, harmonyStepIndex),
+    [stepProductsRaw, sofaForHarmony, harmonyStepIndex],
+  )
 
-  const allStepsComplete = WIZARD_STEPS.every((s) => Boolean(selections[s.category]))
+  const stepProductsAfterBrand = useMemo(() => {
+    if (!brandFilter) return stepProductsSorted
+    return stepProductsSorted.filter((p: Product) => p.brand === brandFilter)
+  }, [stepProductsSorted, brandFilter])
+
+  const stepProducts = useMemo(() => {
+    if (products.length === 0) return []
+    const lo = Math.min(priceRangeLo, priceRangeHi)
+    const hi = Math.max(priceRangeLo, priceRangeHi)
+    return stepProductsAfterBrand.filter(
+      (p: Product) => p.price >= lo && p.price <= hi,
+    )
+  }, [stepProductsAfterBrand, priceRangeLo, priceRangeHi, products.length])
+
+  const currentSelection = selections[activeRoom]?.[activeCategory]
+
+  const handleSelectProduct = useCallback(
+    (product: Product) => {
+      selectProduct(activeRoom, activeCategory, product)
+    },
+    [activeRoom, activeCategory, selectProduct],
+  )
+
+  const roomLabel = CONFIG_ROOMS.find((r) => r.id === activeRoom)?.tab ?? ''
+  const dynamicStepTitle = `${roomLabel} · ${stepMeta.title}`
+
+  const selectionProgressPct = totalCategorySlots
+    ? Math.round((selectedCount / totalCategorySlots) * 100)
+    : 0
+
+  const activeRoomComplete = useMemo(
+    () => isRoomFullySelected(activeRoom, selections),
+    [activeRoom, selections],
+  )
+
+  const completeButtonLabel = !hasAnySelection
+    ? 'Seçim yap'
+    : allSlotsCompleteFlag
+      ? 'ÇEYİZİ KAYDET'
+      : roomsWithSelections <= 1
+        ? 'ODAYI TAMAMLA'
+        : 'ÇEYİZİMİ TAMAMLA'
 
   const styleScore = useMemo(
     () => computeStyleScore(selections, overBudget),
@@ -275,20 +302,32 @@ export default function App() {
   )
 
   const spendingBreakdown = useMemo(() => {
-    const base = totalBudget > 0 ? totalBudget : 1
-    return WIZARD_STEPS.map((step, i) => {
-      const p = selections[step.category]
-      const amount = p?.price ?? 0
-      const pct = Math.round((amount / base) * 1000) / 10
-      return {
-        key: step.category,
-        label: step.title,
-        amount,
-        pct,
-        colorClass: SPEND_BAR_COLORS[i % SPEND_BAR_COLORS.length],
+    const base = budget > 0 ? budget : 1
+    let idx = 0
+    const rows: {
+      key: string
+      label: string
+      amount: number
+      pct: number
+      colorClass: string
+    }[] = []
+    for (const room of ROOM_ORDER) {
+      for (const step of ROOM_CATEGORY_STEPS[room]) {
+        const p = selections[room]?.[step.category]
+        const amount = p?.price ?? 0
+        const pct = Math.round((amount / base) * 1000) / 10
+        rows.push({
+          key: `${room}-${step.category}`,
+          label: `${room} · ${step.title}`,
+          amount,
+          pct,
+          colorClass: SPEND_BAR_COLORS[idx % SPEND_BAR_COLORS.length],
+        })
+        idx += 1
       }
-    })
-  }, [selections, totalBudget])
+    }
+    return rows
+  }, [selections, budget])
 
   const openSummary = useCallback(() => {
     setCombinationCode((prev) => prev ?? generateCombinationCode())
@@ -301,16 +340,10 @@ export default function App() {
     })
   }, [])
 
-  const copyList = async () => {
+  const copyList = useCallback(async () => {
     const code = combinationCode ?? generateCombinationCode()
     if (!combinationCode) setCombinationCode(code)
-    const text = buildListClipboardText(
-      selections,
-      totalBudget,
-      spent,
-      styleScore,
-      code,
-    )
+    const text = buildListClipboardText(selections, budget, spent, styleScore, code)
     try {
       await navigator.clipboard.writeText(text)
       setCopyFeedback(true)
@@ -318,636 +351,491 @@ export default function App() {
     } catch {
       setCopyFeedback(false)
     }
-  }
+  }, [combinationCode, selections, budget, spent, styleScore])
 
-  const restartWizard = () => {
-    setSelections({})
-    setCurrentStep(0)
+  const restartWizard = useCallback(() => {
+    resetSelections()
+    setActiveRoom('Salon')
+    setActiveCategory('Koltuk')
     setSummaryOpen(false)
     setCopyFeedback(false)
     setCombinationCode(null)
-  }
+    setSettingsOpen(false)
+    setMobileSummaryOpen(false)
+    setMobileControlOpen(false)
+    setPriceRangeLo(priceBounds.min)
+    setPriceRangeHi(priceBounds.max)
+  }, [priceBounds, resetSelections])
 
-  return (
-    <div className="min-h-screen bg-gradient-to-b from-[#faf8f4] via-stone-50 to-stone-100 pb-40 text-stone-900 lg:pb-28">
-      <div className="sticky top-0 z-40 border-b border-stone-200/90 bg-white/95 shadow-md shadow-stone-200/40 backdrop-blur-md supports-[padding:max(0px)]:pt-[max(0.35rem,env(safe-area-inset-top))]">
-        <div className="mx-auto max-w-6xl space-y-4 px-4 pb-4 pt-2 sm:px-6 lg:px-8">
-          <div className="flex items-center gap-3 border-b border-stone-200/70 pb-3">
-            <div
-              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-rose-600 to-rose-800 text-white shadow-lg shadow-rose-900/30 ring-2 ring-rose-200/70"
-              aria-hidden
-            >
-              <span className="relative flex size-8 items-center justify-center">
-                <Home className="size-[1.35rem]" strokeWidth={2.25} />
-                <span className="absolute -bottom-0.5 -right-0.5 flex size-[1.05rem] items-center justify-center rounded-full bg-white text-rose-600 shadow-sm ring-1 ring-rose-100">
-                  <Bot className="size-[0.65rem]" strokeWidth={3} />
-                </span>
-              </span>
-            </div>
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-lg font-bold tracking-tight text-stone-900 sm:text-xl">
-                Çeyiz Robotu
-              </p>
-              <p className="truncate text-[11px] text-stone-500 sm:text-xs">
-                AI destekli ev dizme asistanı
-              </p>
-            </div>
-          </div>
-          <div className="grid gap-4 lg:grid-cols-[1fr_minmax(0,20rem)] lg:items-start">
-            <div className="space-y-4">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-            <div className="flex items-start gap-3">
-              <span className="mt-0.5 flex size-11 shrink-0 items-center justify-center rounded-xl bg-rose-100 text-rose-700 sm:size-10">
-                <Wallet className="size-5" aria-hidden />
-              </span>
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-wider text-rose-700">
-                  Bütçe
-                </p>
-                <p className="text-sm text-stone-600">
-                  Toplam bütçeni gir; seçtikçe kalan tutar güncellenir.
-                </p>
-              </div>
-            </div>
-            <div className="flex w-full flex-col gap-2 sm:w-auto sm:min-w-[280px]">
-              <label className="sr-only" htmlFor="budget-input">
-                Toplam bütçe (TL)
-              </label>
-              <div className="flex gap-2">
-                <input
-                  id="budget-input"
-                  type="text"
-                  inputMode="numeric"
-                  autoComplete="off"
-                  placeholder="Örn: 100000"
-                  value={budgetInput}
-                  onChange={(e) => {
-                    setBudgetInput(e.target.value)
-                    setBudgetDirty(true)
-                  }}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') applyBudgetFromInput()
-                  }}
-                  className="min-h-11 min-w-0 flex-1 rounded-xl border border-stone-200 bg-white px-3 py-2.5 text-base outline-none ring-rose-500/30 focus:border-rose-400 focus:ring-2 sm:min-h-10 sm:py-2 sm:text-sm"
-                />
-                <button
-                  type="button"
-                  onClick={applyBudgetFromInput}
-                  className="min-h-11 min-w-[5.5rem] shrink-0 touch-manipulation rounded-xl bg-stone-900 px-4 py-2.5 text-sm font-semibold text-white active:bg-stone-950 sm:min-h-10 sm:min-w-0 sm:px-3 sm:py-2"
-                >
-                  Uygula
-                </button>
-              </div>
-              {budgetDirty ? (
-                <p className="text-xs text-amber-700">Kaydetmek için Uygula’ya bas.</p>
-              ) : null}
-            </div>
-          </div>
+  const controlPanelBody = (
+    <BudgetPanel
+      budgetInput={budgetInput}
+      budgetDirty={budgetDirty}
+      priceRangeLo={priceRangeLo}
+      priceRangeHi={priceRangeHi}
+      priceBounds={priceBounds}
+      loading={loading}
+      catalogLength={products.length}
+      onBudgetInputChange={setBudgetInput}
+      onBudgetApply={applyBudgetFromInput}
+      onPriceLoChange={setPriceRangeLo}
+      onPriceHiChange={setPriceRangeHi}
+      onResetPriceRange={() => {
+        setPriceRangeLo(priceBounds.min)
+        setPriceRangeHi(priceBounds.max)
+      }}
+    />
+  )
 
-          <div className="grid gap-3 sm:grid-cols-3">
-            <div className="rounded-xl border border-stone-100 bg-stone-50 px-3 py-2">
-              <p className="text-xs text-stone-500">Toplam bütçe</p>
-              <p className="text-lg font-semibold tabular-nums text-stone-900">
-                {formatTry(totalBudget)}
-              </p>
-            </div>
-            <div className="rounded-xl border border-stone-100 bg-stone-50 px-3 py-2">
-              <p className="text-xs text-stone-500">Harcanan</p>
-              <p className="text-lg font-semibold tabular-nums text-stone-900">
-                {formatTry(spent)}
-              </p>
-            </div>
-            <div
-              className={`rounded-xl border px-3 py-2 ${
-                overBudget
-                  ? 'border-red-200 bg-red-50'
-                  : 'border-stone-100 bg-stone-50'
-              }`}
+  const selectionSummary = (onAfterNavigate?: () => void) => (
+    <div
+      className="flex min-h-0 min-w-0 flex-1 flex-col gap-3"
+      aria-label="Konfigüratör menüsü"
+    >
+      <div className="shrink-0 space-y-2.5">
+        <div className="flex items-start justify-between gap-2">
+          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-rose-800/90">
+            Odalar ve kategoriler
+          </p>
+          <div className="text-right">
+            <p className="text-[10px] font-semibold uppercase tracking-wide text-stone-500">
+              Toplam seçim
+            </p>
+            <p
+              className="text-sm font-bold tabular-nums text-stone-800"
+              aria-live="polite"
             >
-              <p className="text-xs text-stone-500">Kalan</p>
-              <p
-                className={`text-lg font-semibold tabular-nums ${
-                  overBudget ? 'text-red-700' : 'text-emerald-700'
-                }`}
-              >
-                {formatTry(remaining)}
-              </p>
-            </div>
+              <span className="text-emerald-600">{selectedCount}</span>
+              <span className="text-stone-400"> / </span>
+              {totalCategorySlots}
+            </p>
+            <p className="text-[10px] font-medium text-emerald-700/90">
+              %{selectionProgressPct}
+            </p>
           </div>
-
-          <div>
-            <div className="mb-1 flex justify-between text-xs text-stone-500">
-              <span>Kalan bütçe doluluğu</span>
-              <span className="tabular-nums">{Math.round(remainingRatio * 100)}%</span>
-            </div>
-            <div
-              className="h-4 w-full min-h-[14px] overflow-hidden rounded-full bg-stone-200 sm:h-3"
-              role="progressbar"
-              aria-valuemin={0}
-              aria-valuemax={100}
-              aria-valuenow={Math.round(remainingRatio * 100)}
-              aria-label="Kalan bütçe oranı"
-            >
-              <div
-                className={`h-full min-h-[14px] rounded-full transition-all duration-300 sm:min-h-0 ${
-                  overBudget
-                    ? 'bg-red-500'
-                    : remainingRatio < 0.2
-                      ? 'bg-amber-500'
-                      : 'bg-emerald-500'
-                }`}
-                style={{ width: `${overBudget ? 100 : remainingRatio * 100}%` }}
-              />
-            </div>
-            {overBudget ? (
-              <p className="mt-1 text-xs text-red-600">
-                Seçimlerin bütçeyi aşıyor; bütçeyi artır veya ürünleri gözden geçir.
-              </p>
-            ) : null}
-          </div>
-            </div>
-
-            <aside
-              className="hidden rounded-2xl border border-stone-200/80 bg-gradient-to-br from-amber-50/90 via-white to-stone-50 p-4 shadow-sm ring-1 ring-stone-100 lg:block"
-              aria-label="Oda önizlemesi"
-            >
-              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-rose-800/80">
-                Odanız oluşuyor
-              </p>
-              <p className="mt-1 text-xs text-stone-500">
-                Seçtikçe parçalar burada bir araya gelir.
-              </p>
-              <div className="mt-3 flex flex-wrap gap-2">
-                {WIZARD_STEPS.map((step) => {
-                  const p = selections[step.category]
-                  const StepIcon = categoryIcon(step.category)
-                  return (
-                    <div
-                      key={step.category}
-                      className="flex min-w-[calc(50%-0.25rem)] flex-1 flex-col gap-1.5 rounded-xl border border-stone-200/70 bg-white/90 px-2.5 py-2 text-center shadow-sm sm:min-w-[5.5rem]"
-                    >
-                      <StepIcon
-                        className={`mx-auto size-5 ${p ? 'text-rose-600' : 'text-stone-300'}`}
-                        aria-hidden
-                      />
-                      <span className="text-[10px] font-semibold uppercase tracking-wide text-stone-400">
-                        {step.title}
-                      </span>
-                      {p ? (
-                        <span className="line-clamp-2 text-left text-[11px] font-medium leading-snug text-stone-800">
-                          {p.name}
-                        </span>
-                      ) : (
-                        <span className="text-[11px] text-stone-400">Bekliyor</span>
-                      )}
-                    </div>
-                  )
-                })}
-              </div>
-            </aside>
-          </div>
+        </div>
+        <div
+          className="h-1.5 w-full overflow-hidden rounded-full bg-stone-200/80"
+          role="progressbar"
+          aria-valuenow={selectionProgressPct}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-label="Seçim ilerlemesi"
+        >
+          <div
+            className="h-full rounded-full bg-gradient-to-r from-emerald-400 to-emerald-500 transition-[width] duration-500 ease-out"
+            style={{
+              width: `${Math.min(100, selectionProgressPct)}%`,
+            }}
+          />
         </div>
       </div>
 
-      <header className="border-b border-stone-200/70 bg-white/70 backdrop-blur-sm">
-        <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
-          <p className="text-sm font-medium uppercase tracking-widest text-rose-700">
-            Adım adım çeyiz
+      {activeRoomComplete ? (
+        <div
+          className="shrink-0 flex items-start gap-2.5 rounded-xl border border-emerald-200/80 bg-gradient-to-br from-emerald-50/95 via-emerald-50/70 to-teal-50/50 px-3 py-2.5 text-emerald-950 shadow-sm transition-all duration-300 ease-out"
+          role="status"
+        >
+          <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-emerald-100/90 text-emerald-600 ring-1 ring-emerald-200/60">
+            <Check className="size-4" strokeWidth={2.75} aria-hidden />
+          </span>
+          <p className="min-w-0 text-xs leading-snug">
+            <span className="font-semibold text-emerald-900">
+              Bu oda için seçimlerin hazır!
+            </span>
+            <span className="mt-0.5 block font-normal text-emerald-800/85">
+              Diğer odalara geçebilir veya alttan özeti kaydedebilirsin.
+            </span>
           </p>
-          <h1 className="mt-1 text-2xl font-semibold tracking-tight sm:text-3xl">
-            Seçim sihirbazı
-          </h1>
-          <ol className="mt-4 flex flex-wrap gap-2">
-            {WIZARD_STEPS.map((step, i) => {
-              const done = Boolean(selections[step.category])
-              const active = i === currentStep
-              return (
-                <li key={step.category}>
-                  <button
-                    type="button"
-                    disabled={!canJumpToStep(i)}
-                    onClick={() => canJumpToStep(i) && setCurrentStep(i)}
-                    className={`flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-40 ${
-                      active
-                        ? 'border-rose-500 bg-rose-50 text-rose-900'
-                        : done
-                          ? 'border-emerald-200 bg-emerald-50 text-emerald-900'
-                          : 'border-stone-200 bg-white text-stone-600 hover:border-stone-300'
-                    }`}
-                  >
-                    <span className="flex size-6 items-center justify-center rounded-full bg-white text-xs font-bold text-stone-700 shadow-sm">
-                      {done ? <Check className="size-3.5 text-emerald-600" /> : i + 1}
-                    </span>
-                    {step.title}
-                  </button>
-                </li>
-              )
-            })}
-          </ol>
+        </div>
+      ) : null}
+
+      <CategoryTabs
+        activeRoom={activeRoom}
+        activeCategory={activeCategory}
+        selections={selections}
+        onRoomChange={setActiveRoom}
+        onCategoryChange={setActiveCategory}
+        isRoomFullySelected={(room) => isRoomFullySelected(room, selections)}
+        roomOverShare={roomOverShare}
+      />
+    </div>
+  )
+
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-[#faf8f4] via-stone-50 to-stone-100 pb-[calc(5.25rem+env(safe-area-inset-bottom,0px))] text-stone-900 lg:pb-24">
+      <header className="sticky top-0 z-50 flex h-14 items-center gap-2 border-b border-stone-200/90 bg-white/95 px-3 shadow-sm shadow-stone-200/30 backdrop-blur-md supports-[padding:max(0px)]:pt-[env(safe-area-inset-top)] sm:gap-4 sm:px-5">
+        <div className="flex min-w-0 shrink-0 items-center gap-2">
+          <div
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-rose-600 to-rose-800 text-white shadow-md shadow-rose-900/25 ring-2 ring-rose-200/60"
+            aria-hidden
+          >
+            <span className="relative flex size-6 items-center justify-center">
+              <Home className="size-[1.05rem]" strokeWidth={2.25} />
+              <span className="absolute -bottom-0.5 -right-0.5 flex size-4 items-center justify-center rounded-full bg-white text-rose-600 shadow-sm ring-1 ring-rose-100">
+                <Bot className="size-2.5" strokeWidth={3} />
+              </span>
+            </span>
+          </div>
+          <span className="hidden max-w-[8rem] truncate font-semibold text-stone-900 sm:inline">
+            Çeyiz Robotu
+          </span>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => setMobileControlOpen(true)}
+          className="flex h-9 w-9 shrink-0 touch-manipulation items-center justify-center rounded-lg border border-stone-200 bg-white text-stone-600 transition hover:border-stone-300 hover:bg-stone-50 lg:hidden"
+          aria-label="Kontrol paneli — bütçe ve fiyat filtresi"
+        >
+          <SlidersHorizontal className="size-4" aria-hidden />
+        </button>
+
+        <div className="mx-auto flex min-w-0 max-w-[min(15rem,40vw)] flex-1 flex-col items-center justify-center px-1 sm:max-w-[min(15rem,46vw)]">
+          <p className="text-[9px] font-semibold uppercase tracking-widest text-stone-500">
+            Kalan bütçe
+          </p>
+          <p
+            className={`text-sm font-bold tabular-nums leading-tight sm:text-base ${
+              overBudget ? 'text-red-600' : 'text-emerald-700'
+            }`}
+          >
+            {formatTry(remaining)}
+          </p>
+          <div
+            className="mt-0.5 h-1 w-full rounded-full bg-stone-200"
+            role="progressbar"
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-valuenow={Math.round(remainingRatio * 100)}
+            aria-label="Kalan bütçe oranı"
+          >
+            <div
+              className={`h-full rounded-full transition-all duration-300 ${
+                overBudget
+                  ? 'bg-red-500'
+                  : remainingRatio < 0.2
+                    ? 'bg-amber-500'
+                    : 'bg-emerald-500'
+              }`}
+              style={{ width: `${overBudget ? 100 : remainingRatio * 100}%` }}
+            />
+          </div>
+        </div>
+
+        <div className="flex shrink-0 items-center gap-2">
+          {canUndo && (
+            <button
+              type="button"
+              onClick={undo}
+              className="flex h-9 w-9 touch-manipulation items-center justify-center rounded-lg border border-stone-200 bg-white text-stone-600 transition hover:border-stone-300 hover:bg-stone-50"
+              title="Geri al"
+              aria-label="Son seçimi geri al"
+            >
+              <Undo2 className="size-4" aria-hidden />
+            </button>
+          )}
+          <div className="relative" ref={settingsWrapRef}>
+            <button
+              type="button"
+              onClick={() => setSettingsOpen((o) => !o)}
+              className="flex h-9 w-9 touch-manipulation items-center justify-center rounded-lg border border-stone-200 bg-white text-stone-600 transition hover:border-stone-300 hover:bg-stone-50"
+              aria-expanded={settingsOpen}
+              aria-haspopup="true"
+              title="Özet ve ayarlar"
+            >
+              <Settings className="size-4" aria-hidden />
+              <span className="sr-only">Özet ve ayarlar</span>
+            </button>
+            {settingsOpen ? (
+              <div className="absolute right-0 top-11 z-[60] w-[min(calc(100vw-1.5rem),17rem)] rounded-xl border border-stone-200 bg-white p-3 text-xs shadow-xl shadow-stone-900/10 sm:w-64">
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-stone-500">
+                  Özet
+                </p>
+                <p className="mt-2 text-xs leading-relaxed text-stone-600">
+                  Bütçe ve fiyat aralığı için masaüstünde sol{' '}
+                  <span className="font-medium text-stone-800">Kontrol paneli</span>
+                  ni, mobilde{' '}
+                  <span className="font-medium text-stone-800">Filtreler</span>{' '}
+                  ikonunu kullan.
+                </p>
+                <p className="mt-3 text-[10px] font-semibold uppercase tracking-wider text-stone-500">
+                  Harcanan
+                </p>
+                <p className="mt-0.5 font-semibold tabular-nums text-stone-900">
+                  {formatTry(spent)}
+                </p>
+                <p className="mt-2 text-[10px] font-semibold uppercase tracking-wider text-stone-500">
+                  Kalan
+                </p>
+                <p
+                  className={`mt-0.5 font-semibold tabular-nums ${
+                    overBudget ? 'text-red-600' : 'text-emerald-700'
+                  }`}
+                >
+                  {formatTry(remaining)}
+                </p>
+                {overBudget ? (
+                  <p className="mt-2 text-red-600">
+                    Bütçe aşıldı; tutarı artır veya seçimleri gözden geçir.
+                  </p>
+                ) : null}
+                <button
+                  type="button"
+                  onClick={() => {
+                    restartWizard()
+                    setSettingsOpen(false)
+                  }}
+                  className="mt-3 flex w-full items-center justify-center gap-2 rounded-lg border border-stone-200 bg-stone-50 py-2.5 font-semibold text-stone-800 transition hover:bg-stone-100"
+                >
+                  <RotateCcw className="size-3.5" aria-hidden />
+                  Sıfırla
+                </button>
+              </div>
+            ) : null}
+          </div>
         </div>
       </header>
 
-      <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
-        {loading ? (
-          <div className="flex items-center justify-center gap-2 py-24 text-stone-500">
-            <Loader2 className="size-6 animate-spin" aria-hidden />
-            <span>Ürünler yükleniyor</span>
-          </div>
-        ) : error ? (
-          <p className="py-12 text-center text-red-600">{error}</p>
-        ) : (
-          <>
-            <div key={currentStep} className="animate-fade-step">
-            <div className="mb-6">
-              <h2 className="text-xl font-semibold text-stone-900">
-                Adım {currentStep + 1} / {WIZARD_STEPS.length}: {dynamicStepTitle}
-              </h2>
-              <p className="mt-1 text-sm text-stone-600">
-                {currentStep > 0 && lockedStyle ? (
-                  lockedStyle === 'Nötr' || lockedStyle === 'Zamansız' ? (
-                    <>
-                      Nötr / zamansız koltuk seçtin; bu kategorideki tüm çizgileri
-                      görebilirsin. Uyumlu renkler yine öne alınır.
-                    </>
-                  ) : styleListFallback === 'none' ? (
-                    <>
-                      Koltuk seçimine göre{' '}
-                      <span className="font-medium text-stone-800">
-                        {lockedStyle}
-                      </span>
-                      , Nötr ve Zamansız ürünler öncelikli. Uyumlu renkler öne
-                      alındı.
-                    </>
-                  ) : (
-                    <>
-                      Dar stil filtresi sonuç vermedi; aşağıdaki bilgiyle
-                      genişletilmiş listeyi inceliyorsun.
-                    </>
-                  )
+      <div className="mx-auto flex w-full max-w-[1920px] flex-1 flex-col gap-6 px-4 py-6 lg:flex-row lg:items-start lg:gap-6 lg:px-6 lg:py-8">
+        <aside
+          className="sticky top-14 z-30 hidden h-[calc(100dvh-3.5rem)] w-[min(18.5rem,22vw)] shrink-0 flex-col overflow-y-auto overscroll-contain rounded-2xl border border-stone-200/80 bg-white/50 p-5 shadow-sm shadow-stone-200/30 backdrop-blur-sm lg:flex"
+          aria-label="Kontrol paneli"
+        >
+          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-rose-800/90">
+            Kontrol paneli
+          </p>
+          {controlPanelBody}
+        </aside>
+
+        <main className="min-w-0 flex-1 py-0 lg:min-w-0">
+          {loading ? (
+            <div className="flex items-center justify-center gap-2 py-24 text-stone-500">
+              <Loader2 className="size-6 animate-spin" aria-hidden />
+              <span>Ürünler yükleniyor</span>
+            </div>
+          ) : error ? (
+            <p className="py-12 text-center text-red-600">{error}</p>
+          ) : (
+            <>
+              <div
+                key={`${activeRoom}-${activeCategory}`}
+                className="animate-fade-step"
+              >
+                <div className="mb-8 max-w-3xl">
+                  <p className="text-xs font-semibold uppercase tracking-widest text-rose-700">
+                    Konfigüratör
+                  </p>
+                  <h2 className="mt-2 text-2xl font-semibold tracking-tight text-stone-900 sm:text-3xl">
+                    {dynamicStepTitle}
+                  </h2>
+                  <p className="mt-2 text-sm leading-relaxed text-stone-600">
+                    Solda bütçe ve fiyat aralığı; ortada marka ve ürün ızgarası;
+                    sağda oda ve kategoriler. Grid, oda/kategori, marka ve fiyat
+                    süzgeçlerinin hepsine aynı anda uyar. Koltuk seçimlerine göre
+                    uyumlu ürünler öne alınır.
+                  </p>
+                </div>
+                {stepProductsRaw.length === 0 ? (
+                  <p className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+                    Bu oda ve kategoride ürün bulunamadı.
+                  </p>
                 ) : (
                   <>
-                    Bu adımda bir ürün seç; stilin (veya nötr çizgin) çeyiz için
-                    referans olur.
+                    {brandOptions.length > 0 ? (
+                      <div className="mb-5">
+                        <p className="mb-2 text-[10px] font-bold uppercase tracking-widest text-stone-500">
+                          Marka
+                        </p>
+                        <div
+                          className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+                          role="toolbar"
+                          aria-label="Marka filtresi"
+                        >
+                          <button
+                            type="button"
+                            onClick={() => setBrandFilter(null)}
+                            className={`shrink-0 rounded-full border px-3.5 py-2 text-xs font-semibold transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-500 ${
+                              brandFilter === null
+                                ? 'border-stone-900 bg-stone-900 text-white shadow-sm'
+                                : 'border-stone-200 bg-white text-stone-700 hover:border-stone-300 hover:bg-stone-50'
+                            }`}
+                          >
+                            Hepsi
+                          </button>
+                          {brandOptions.map((b) => (
+                            <button
+                              key={b}
+                              type="button"
+                              onClick={() => setBrandFilter(b)}
+                              className={`shrink-0 rounded-full border px-3.5 py-2 text-xs font-semibold transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-500 ${
+                                brandFilter === b
+                                  ? 'border-stone-900 bg-stone-900 text-white shadow-sm'
+                                  : 'border-stone-200 bg-white text-stone-700 hover:border-stone-300 hover:bg-stone-50'
+                              }`}
+                            >
+                              {b}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    ) : null}
+                    {stepProducts.length === 0 ? (
+                      <p className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+                        {stepProductsAfterBrand.length === 0 && brandFilter ? (
+                          <>
+                            Seçili marka için bu listede ürün yok; &quot;Hepsi&quot; ile
+                            tümünü görebilirsin.
+                          </>
+                        ) : (
+                          <>
+                            Seçilen fiyat aralığında ürün yok; sol paneldeki
+                            kaydırıcıyı genişlet veya &quot;Tüm fiyat aralığı&quot;na
+                            dön.
+                          </>
+                        )}
+                      </p>
+                    ) : (
+                      <ProductGrid
+                        products={stepProducts}
+                        selectedProduct={currentSelection}
+                        sofaForHarmony={sofaForHarmony}
+                        activeCategory={activeCategory}
+                        onSelect={handleSelectProduct}
+                        onToggleFavorite={toggleFavorite}
+                        isFavorite={isFavorite}
+                      />
+                    )}
                   </>
                 )}
-              </p>
-            </div>
-            {fallbackMessage ? (
-              <div
-                className="mb-4 rounded-xl border border-sky-200 bg-sky-50/95 px-4 py-3 text-sm leading-relaxed text-sky-950 shadow-sm"
-                role="status"
-              >
-                {fallbackMessage}
               </div>
-            ) : null}
-            {stepProducts.length === 0 ? (
-              <p className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-                Bu kategoride ürün bulunamadı. Veri veya filtreleri kontrol et.
-              </p>
-            ) : (
-            <ul className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {stepProducts.map((p) => {
-                const Icon = categoryIcon(p.category)
-                const selected = currentSelection?.id === p.id
-                const harmony =
-                  currentStep > 0 && sofa
-                    ? isHarmonyMatch(sofa, p.color)
-                    : false
-                return (
-                  <li key={p.id}>
-                    <button
-                      type="button"
-                      onClick={() => selectProduct(p)}
-                      className={`group flex w-full flex-col overflow-hidden rounded-2xl border bg-white text-left shadow-sm transition-all duration-300 ease-out focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-500 hover:-translate-y-1 hover:shadow-xl hover:shadow-stone-300/40 ${
-                        selected
-                          ? 'border-rose-500 ring-2 ring-rose-400/90 ring-offset-2 ring-offset-[#faf8f4] shadow-lg shadow-rose-900/15'
-                          : 'border-stone-200 hover:border-stone-300'
-                      }`}
-                    >
-                      <div className="relative aspect-[4/3] bg-stone-100">
-                        <img
-                          src={p.imageUrl}
-                          alt=""
-                          className="h-full w-full object-cover"
-                          loading="lazy"
-                          width={400}
-                          height={300}
-                        />
-                        <span className="absolute left-3 top-3 inline-flex items-center gap-1.5 rounded-full bg-white/90 px-2.5 py-1 text-xs font-medium text-stone-700 shadow-sm backdrop-blur">
-                          <Icon className="size-3.5 text-rose-600" aria-hidden />
-                          {p.category}
-                        </span>
-                        {harmony ? (
-                          <span className="absolute bottom-3 left-3 inline-flex max-w-[calc(100%-1.5rem)] items-center gap-1 rounded-full bg-violet-600/95 px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-white shadow-md backdrop-blur">
-                            <span aria-hidden>🤖</span>
-                            Robotun Önerisi
-                            <span className="rounded bg-white/20 px-1 py-0.5 text-[9px] font-bold normal-case">
-                              Uyumlu
-                            </span>
-                          </span>
-                        ) : null}
-                        {selected ? (
-                          <span
-                            className="absolute right-3 top-3 flex size-8 items-center justify-center rounded-full bg-rose-600 text-white shadow-lg ring-2 ring-white/95"
-                            title="Seçildi"
-                          >
-                            <Check
-                              className="size-4"
-                              strokeWidth={2.75}
-                              aria-hidden
-                            />
-                            <span className="sr-only">Seçildi</span>
-                          </span>
-                        ) : null}
-                      </div>
-                      <div className="flex flex-1 flex-col gap-3 p-4">
-                        <div>
-                          <p className="text-xs font-medium uppercase tracking-wide text-stone-500">
-                            {p.brand}
-                          </p>
-                          <h3 className="text-lg font-semibold leading-snug text-stone-900">
-                            {p.name}
-                          </h3>
-                        </div>
-                        <div className="mt-auto flex flex-wrap gap-2 text-xs text-stone-600">
-                          <span className="rounded-md bg-stone-100 px-2 py-1">
-                            {p.style}
-                          </span>
-                          <span className="rounded-md bg-stone-100 px-2 py-1">
-                            {p.color}
-                          </span>
-                        </div>
-                        <p className="text-lg font-semibold text-rose-800">
-                          {formatTry(p.price)}
-                        </p>
-                      </div>
-                    </button>
-                  </li>
-                )
-              })}
-            </ul>
-            )}
-            </div>
-          </>
-        )}
-      </main>
+            </>
+          )}
+        </main>
+
+        <aside
+          className="sticky top-14 z-30 hidden h-[calc(100dvh-3.5rem)] w-[min(21rem,30vw)] shrink-0 flex-col overflow-hidden overscroll-contain rounded-2xl border border-stone-200/80 bg-[#faf8f4]/80 py-5 pl-4 shadow-sm shadow-stone-200/20 backdrop-blur-sm lg:flex"
+          aria-label="Oda ve kategori menüsü — masaüstü"
+        >
+          {selectionSummary()}
+        </aside>
+      </div>
 
       <nav
         className="fixed bottom-0 left-0 right-0 z-40 border-t border-stone-200 bg-white/95 backdrop-blur-md supports-[padding:max(0px)]:pb-[max(0.5rem,env(safe-area-inset-bottom))]"
-        aria-label="Sihirbaz navigasyonu"
+        aria-label="Konfigüratör alt çubuğu"
       >
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3 sm:px-6 lg:px-8">
+        <div className="mx-auto flex max-w-[1800px] items-center justify-between gap-3 px-3 py-2.5 sm:px-6 lg:px-8">
           <button
             type="button"
-            onClick={goPrev}
-            disabled={!canGoPrev}
-            className="inline-flex min-h-11 min-w-[44px] touch-manipulation items-center gap-2 rounded-xl border border-stone-200 bg-white px-4 py-2.5 text-sm font-medium text-stone-800 shadow-sm transition hover:bg-stone-50 disabled:cursor-not-allowed disabled:opacity-40"
+            onClick={() => setMobileSummaryOpen(true)}
+            className="inline-flex min-h-11 min-w-11 touch-manipulation items-center justify-center gap-1.5 rounded-xl border border-stone-200 bg-white px-3 text-xs font-semibold text-stone-700 shadow-sm transition hover:border-stone-300 hover:bg-stone-50 lg:hidden"
+            aria-label="Odalar ve kategoriler"
           >
-            <ArrowLeft className="size-4" aria-hidden />
-            Önceki Adım
+            <ListOrdered className="size-4 shrink-0" aria-hidden />
+            Menü
           </button>
-          <p className="hidden text-sm text-stone-500 sm:block">
-            {currentStep + 1} / {WIZARD_STEPS.length}
-          </p>
-          {budgetBlocksNext &&
-          currentSelection &&
-          nextCategoryMinPrice !== null ? (
-            <div className="max-w-md rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-right shadow-sm">
-              <p className="text-sm font-bold text-amber-950">
-                Bütçeni Aşabilirsin!
+          <div className="hidden min-w-0 flex-1 lg:block" aria-hidden />
+          <div className="min-w-0 flex-1 text-center lg:flex-none lg:text-left">
+            {overBudget ? (
+              <p className="text-xs font-medium text-red-600 sm:text-sm">
+                Toplam bütçe aşıldı; kontrol panelinden tutarı veya seçimleri
+                güncelle.
               </p>
-              <p className="mt-1 text-xs text-amber-900">
-                Kalan {formatTry(remaining)}, bir sonraki adımda (
-                {WIZARD_STEPS[currentStep + 1]?.title}) en uygun ürün bile{' '}
-                {formatTry(nextCategoryMinPrice)}. Önceki adıma dönüp daha uygun
-                fiyatlı bir seçenek denemen iyi olur.
+            ) : (
+              <p className="text-xs text-stone-500 sm:text-sm">
+                Boş kategoriler isteğe bağlı; en az bir ürün seçerek özetini
+                kaydedebilirsin.
               </p>
-            </div>
-          ) : allStepsComplete ? (
-            <button
-              type="button"
-              onClick={openSummary}
-              className="inline-flex min-h-11 touch-manipulation items-center gap-2 rounded-xl bg-gradient-to-r from-rose-600 to-rose-700 px-4 py-2.5 text-sm font-semibold text-white shadow-md shadow-rose-900/20 transition hover:from-rose-700 hover:to-rose-800"
+            )}
+          </div>
+          <button
+            type="button"
+            onClick={openSummary}
+            disabled={!hasAnySelection}
+            className="inline-flex min-h-11 max-w-[min(100%,14rem)] shrink-0 touch-manipulation items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-rose-600 to-rose-700 px-3 py-2.5 text-xs font-bold uppercase tracking-wide text-white shadow-md shadow-rose-900/20 transition hover:from-rose-700 hover:to-rose-800 disabled:cursor-not-allowed disabled:opacity-45 sm:max-w-none sm:px-5 sm:text-sm"
+          >
+            <Sparkles className="size-4 shrink-0" aria-hidden />
+            <span
+              className={`truncate ${!hasAnySelection ? 'normal-case tracking-normal' : ''}`}
             >
-              <Sparkles className="size-4" aria-hidden />
-              Kombinasyonu Tamamla
-            </button>
-          ) : (
-            <button
-              type="button"
-              onClick={goNext}
-              disabled={!canGoNext}
-              className="inline-flex min-h-11 touch-manipulation items-center gap-2 rounded-xl bg-rose-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-rose-700 disabled:cursor-not-allowed disabled:bg-stone-300 disabled:text-stone-500"
-            >
-              Sonraki Adım
-              <ArrowRight className="size-4" aria-hidden />
-            </button>
-          )}
+              {completeButtonLabel}
+            </span>
+          </button>
         </div>
       </nav>
 
-      <div
-        className="fixed bottom-[calc(4.25rem+env(safe-area-inset-bottom,0px))] left-0 right-0 z-30 border-t border-stone-200/90 bg-white/95 px-3 py-2 shadow-[0_-6px_24px_rgba(0,0,0,0.06)] backdrop-blur-md lg:hidden"
-        aria-label="Oda önizlemesi — mobil"
-      >
-        <p className="text-[9px] font-bold uppercase tracking-[0.18em] text-rose-800/90">
-          Odanız oluşuyor
-        </p>
-        <div className="mt-1.5 flex gap-2 overflow-x-auto pb-0.5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          {WIZARD_STEPS.map((step) => {
-            const p = selections[step.category]
-            const StepIcon = categoryIcon(step.category)
-            return (
-              <div
-                key={`m-${step.category}`}
-                className="flex min-w-[4.5rem] shrink-0 flex-col items-center gap-0.5 rounded-lg border border-stone-200/80 bg-white/95 px-2 py-1.5 text-center shadow-sm"
-              >
-                <StepIcon
-                  className={`size-4 ${p ? 'text-rose-600' : 'text-stone-300'}`}
-                  aria-hidden
-                />
-                <span className="line-clamp-2 w-full text-[9px] font-medium leading-tight text-stone-700">
-                  {p ? p.name : '—'}
-                </span>
-              </div>
-            )
-          })}
-        </div>
-      </div>
-
-      {summaryOpen && allStepsComplete ? (
+      {mobileSummaryOpen ? (
         <div
-          className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-stone-950/55 p-4 pb-24 backdrop-blur-sm sm:p-8 sm:pb-8"
+          className="fixed inset-0 z-[55] lg:hidden"
           role="dialog"
           aria-modal="true"
-          aria-labelledby="summary-title"
-          onClick={() => setSummaryOpen(false)}
+          aria-label="Seçim özeti"
         >
-          <div
-            className="relative my-4 w-full max-w-6xl rounded-3xl border border-stone-200/80 bg-gradient-to-b from-white to-stone-50 shadow-2xl shadow-stone-900/20"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
-              type="button"
-              onClick={() => setSummaryOpen(false)}
-              className="absolute right-4 top-4 rounded-full border border-stone-200 bg-white p-2 text-stone-600 shadow-sm transition hover:bg-stone-50"
-              aria-label="Kapat"
-            >
-              <X className="size-5" />
-            </button>
-
-            <div className="border-b border-stone-100 px-6 pb-6 pt-10 sm:px-10 sm:pt-12">
-              <p className="text-xs font-bold uppercase tracking-[0.25em] text-rose-700">
-                Özet ekranı
-              </p>
-              <h2
-                id="summary-title"
-                className="mt-2 text-2xl font-semibold tracking-tight text-stone-900 sm:text-3xl"
-              >
-                Çeyiz kombinasyonun hazır
-              </h2>
-              <p className="mt-2 max-w-2xl text-sm text-stone-600">
-                Toplam {formatTry(spent)} · Bütçe {formatTry(totalBudget)} · Kalan{' '}
-                {formatTry(remaining)}
-              </p>
-              {combinationCode ? (
-                <p className="mt-3 inline-flex items-center gap-2 rounded-xl border border-rose-200/80 bg-rose-50/80 px-3 py-2 font-mono text-sm font-semibold text-rose-900">
-                  Kombinasyon kodun:{' '}
-                  <span className="tracking-wide">{combinationCode}</span>
-                </p>
-              ) : null}
-            </div>
-
-            <div className="grid gap-4 px-4 py-6 sm:grid-cols-2 sm:gap-5 sm:px-8 lg:grid-cols-4">
-              {WIZARD_STEPS.map((step) => {
-                const p = selections[step.category]!
-                const SIcon = categoryIcon(step.category)
-                return (
-                  <article
-                    key={step.category}
-                    className="flex flex-col overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-md transition-all hover:shadow-lg"
-                  >
-                    <div className="relative aspect-[4/3] bg-stone-100">
-                      <img
-                        src={p.imageUrl}
-                        alt=""
-                        className="h-full w-full object-cover"
-                        width={400}
-                        height={300}
-                      />
-                      <span className="absolute left-3 top-3 inline-flex items-center gap-1 rounded-full bg-white/95 px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-stone-700 shadow">
-                        <SIcon className="size-3.5 text-rose-600" aria-hidden />
-                        {step.title}
-                      </span>
-                    </div>
-                    <div className="flex flex-1 flex-col gap-2 p-4">
-                      <p className="text-[11px] font-semibold uppercase text-stone-500">
-                        {p.brand}
-                      </p>
-                      <h3 className="text-base font-semibold leading-snug text-stone-900">
-                        {p.name}
-                      </h3>
-                      <p className="mt-auto text-lg font-bold text-rose-800">
-                        {formatTry(p.price)}
-                      </p>
-                    </div>
-                  </article>
-                )
-              })}
-            </div>
-
-            <div className="mx-4 mb-4 rounded-2xl border border-stone-200/90 bg-white/90 p-5 sm:mx-8 sm:p-6">
-              <h3 className="text-sm font-semibold text-stone-900">
-                Harcama dağılımı
-              </h3>
-              <p className="mt-1 text-xs text-stone-500">
-                Her kategori, toplam bütçene göre yüzde kaç yer kaplıyor?
-              </p>
-              <ul
-                className="mt-4 space-y-3.5"
-                aria-label="Kategori bazlı harcama yüzdeleri"
-              >
-                {spendingBreakdown.map((row) => (
-                  <li key={row.key}>
-                    <div className="mb-1 flex flex-wrap items-baseline justify-between gap-2 text-sm">
-                      <span className="font-medium text-stone-800">
-                        {row.label}
-                      </span>
-                      <span className="tabular-nums text-stone-600">
-                        <span className="font-semibold text-stone-900">
-                          %{row.pct.toLocaleString('tr-TR', {
-                            minimumFractionDigits: row.pct % 1 ? 1 : 0,
-                            maximumFractionDigits: 1,
-                          })}
-                        </span>
-                        <span className="text-stone-400"> · </span>
-                        {formatTry(row.amount)}
-                      </span>
-                    </div>
-                    <div
-                      className="h-2.5 overflow-hidden rounded-full bg-stone-100"
-                      role="presentation"
-                    >
-                      <div
-                        className={`h-full rounded-full transition-all duration-500 ${row.colorClass}`}
-                        style={{
-                          width: `${Math.min(100, row.pct)}%`,
-                        }}
-                      />
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <div className="mx-4 mb-4 rounded-2xl border border-violet-200/80 bg-gradient-to-br from-violet-50/90 to-white p-6 sm:mx-8">
-              <div className="flex flex-wrap items-center gap-3">
-                <span className="flex size-11 items-center justify-center rounded-xl bg-violet-600 text-white shadow-lg">
-                  <Sparkles className="size-6" aria-hidden />
-                </span>
-                <div>
-                  <h3 className="text-lg font-semibold text-stone-900">
-                    AI İç Mimar Yorumu
-                  </h3>
-                  <p className="text-sm text-stone-500">
-                    Seçimlerine göre otomatik üretildi — eğlenceli bir rehber
-                    niteliğindedir.
-                  </p>
-                </div>
-                <div className="ml-auto flex items-baseline gap-1 rounded-2xl bg-white px-4 py-2 shadow-inner ring-1 ring-violet-100">
-                  <span className="text-3xl font-bold tabular-nums text-violet-700">
-                    {styleScore}
-                  </span>
-                  <span className="text-sm font-medium text-violet-600/80">/10</span>
-                  <span className="sr-only">Stil puanı</span>
-                </div>
-              </div>
-              <p className="mt-5 text-[15px] leading-relaxed text-stone-700">
-                {interiorStory}
-              </p>
-            </div>
-
-            <div className="flex flex-col gap-3 border-t border-stone-100 bg-stone-50/80 px-4 py-5 sm:flex-row sm:justify-end sm:px-8">
-              <button
-                type="button"
-                onClick={copyList}
-                className="inline-flex items-center justify-center gap-2 rounded-xl border border-stone-300 bg-white px-5 py-3 text-sm font-semibold text-stone-800 shadow-sm transition hover:bg-stone-50"
-              >
-                <Copy className="size-4" aria-hidden />
-                {copyFeedback ? 'Kopyalandı!' : 'Listeyi Kopyala'}
-              </button>
-              <button
-                type="button"
-                onClick={restartWizard}
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-stone-900 px-5 py-3 text-sm font-semibold text-white shadow-md transition hover:bg-stone-800"
-              >
-                <RotateCcw className="size-4" aria-hidden />
-                Yeniden Başla
-              </button>
-            </div>
+          <button
+            type="button"
+            className="absolute inset-0 bg-stone-950/45 backdrop-blur-[2px]"
+            onClick={() => setMobileSummaryOpen(false)}
+            aria-label="Kapat"
+          />
+          <div className="ceyiz-sheet-panel absolute inset-x-0 bottom-0 max-h-[min(82vh,36rem)] overflow-y-auto overscroll-contain rounded-t-3xl border border-stone-200/90 bg-gradient-to-b from-white to-stone-50 px-4 pb-6 pt-2 shadow-[0_-16px_48px_rgba(0,0,0,0.14)] supports-[padding:max(0px)]:pb-[max(1.25rem,env(safe-area-inset-bottom))]">
+            <div
+              className="mx-auto mb-3 h-1 w-10 shrink-0 rounded-full bg-stone-300"
+              aria-hidden
+            />
+            {selectionSummary(() => setMobileSummaryOpen(false))}
           </div>
         </div>
       ) : null}
+
+      {mobileControlOpen ? (
+        <div
+          className="fixed inset-0 z-[55] lg:hidden"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Kontrol paneli"
+        >
+          <button
+            type="button"
+            className="absolute inset-0 bg-stone-950/45 backdrop-blur-[2px]"
+            onClick={() => setMobileControlOpen(false)}
+            aria-label="Kapat"
+          />
+          <div className="ceyiz-sheet-panel absolute inset-x-0 bottom-0 max-h-[min(88vh,42rem)] overflow-y-auto overscroll-contain rounded-t-3xl border border-stone-200/90 bg-gradient-to-b from-white to-stone-50 px-4 pb-6 pt-2 shadow-[0_-16px_48px_rgba(0,0,0,0.14)] supports-[padding:max(0px)]:pb-[max(1.25rem,env(safe-area-inset-bottom))]">
+            <div
+              className="mx-auto mb-3 h-1 w-10 shrink-0 rounded-full bg-stone-300"
+              aria-hidden
+            />
+            <p className="mb-4 text-[10px] font-bold uppercase tracking-[0.2em] text-rose-800/90">
+              Kontrol paneli
+            </p>
+            {controlPanelBody}
+            <button
+              type="button"
+              onClick={() => setMobileControlOpen(false)}
+              className="mt-6 w-full rounded-xl border border-stone-200 bg-white py-3 text-sm font-semibold text-stone-800 transition hover:bg-stone-50"
+            >
+              Kapat
+            </button>
+          </div>
+        </div>
+      ) : null}
+
+      <SummaryModal
+        isOpen={summaryOpen && hasAnySelection}
+        onClose={() => setSummaryOpen(false)}
+        selections={selections}
+        totalBudget={budget}
+        spent={spent}
+        remaining={remaining}
+        styleScore={styleScore}
+        interiorStory={interiorStory}
+        combinationCode={combinationCode}
+        copyFeedback={copyFeedback}
+        onCopy={copyList}
+        onRestart={restartWizard}
+        spendingBreakdown={spendingBreakdown}
+      />
     </div>
   )
 }

@@ -5,10 +5,25 @@ import { fileURLToPath } from 'node:url'
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const root = path.join(__dirname, '..')
 
+const ROOMS = ['Salon', 'Mutfak', 'Yatak Odası', 'Antre']
+
 const CATEGORIES = [
   {
     category: 'Koltuk',
-    brands: ['Vitra', 'İstikbal', 'Bellona', 'Mondi', 'Doğtaş', 'Kelebek', 'Çilek'],
+    brands: [
+      'Vitra',
+      'İstikbal',
+      'Bellona',
+      'Mondi',
+      'Doğtaş',
+      'Kelebek',
+      'Çilek',
+      'Vivense',
+      'Enza Home',
+      'Tepe Home',
+      'İDAŞ',
+      'Lazzoni',
+    ],
     suffixes: [
       'Köşe Takımı',
       'Üçlü Koltuk',
@@ -21,12 +36,36 @@ const CATEGORIES = [
   },
   {
     category: 'Halı',
-    brands: ['Merinos', 'Saray', 'Padişah', 'Angora', 'Sanat', 'Atlas'],
+    brands: [
+      'Merinos',
+      'Saray',
+      'Padişah',
+      'Angora',
+      'Sanat',
+      'Atlas',
+      'Vivense',
+      'Enza Home',
+      'Tepe Home',
+      'İstikbal',
+      'Bellona',
+    ],
     suffixes: ['Halı', 'Kilim', 'Shaggy Halı', 'Yolluk', 'Oda Halısı', 'Patchwork', 'Vintage Halı'],
   },
   {
     category: 'Yemek Masası',
-    brands: ['İstikbal', 'Bellona', 'Doğtaş', 'Mondi', 'Çilek', 'Kelebek'],
+    brands: [
+      'İstikbal',
+      'Bellona',
+      'Doğtaş',
+      'Mondi',
+      'Çilek',
+      'Kelebek',
+      'Vivense',
+      'Enza Home',
+      'Tepe Home',
+      'Vitra',
+      'İDAŞ',
+    ],
     suffixes: [
       'Yemek Masası',
       'Uzatmalı Masa',
@@ -39,8 +78,42 @@ const CATEGORIES = [
   },
   {
     category: 'Aydınlatma',
-    brands: ['Philips', 'EGLO', 'Osram', 'İkea', 'Horoz', 'AVONNI'],
+    brands: [
+      'Philips',
+      'EGLO',
+      'Osram',
+      'İkea',
+      'Horoz',
+      'AVONNI',
+      'Vivense',
+      'Tepe Home',
+      'Enza Home',
+      'İstikbal',
+      'Bellona',
+    ],
     suffixes: ['Avize', 'Lambader', 'Spot Set', 'Sarkıt', 'Masa Lambası', 'Duvar Aplik', 'LED Panel'],
+  },
+  {
+    category: 'Perde',
+    brands: [
+      'Taç',
+      'Brillant',
+      'Linens',
+      'Madame Coco',
+      'IKEA',
+      'Taç',
+      'Brillant',
+      'Linens',
+    ],
+    suffixes: [
+      'Tül Perde',
+      'Blackout Perde',
+      'Zebra Perde',
+      'Fon Perde',
+      'Rustik Perde',
+      'Stor Perde',
+      'Dikey Perde',
+    ],
   },
 ]
 
@@ -78,18 +151,25 @@ function priceFrom(seed) {
   return 3500 + ((seed * 4139) % 46_500)
 }
 
+/** Ürün id + tuzu ile kategorideki markaları dengeli ve tekrar üretilebilir şekilde karıştırır */
+function pickBrand(brands, pid, salt = 0) {
+  const h = (pid * 2654435761 + salt * 1597334677) >>> 0
+  return brands[h % brands.length]
+}
+
 const products = []
 let id = 1
 let seed = 1
 
 for (const def of CATEGORIES) {
   for (let i = 0; i < 12; i += 1) {
-    const brand = def.brands[i % def.brands.length]
+    const pid = id++
+    const brand = pickBrand(def.brands, pid, i)
     const suf = def.suffixes[i % def.suffixes.length]
     const col = MODERN_COLORS[i % MODERN_COLORS.length]
-    const pid = id++
     products.push({
       id: pid,
+      room: ROOMS[(pid - 1) % ROOMS.length],
       category: def.category,
       name: `${brand} ${suf}`,
       brand,
@@ -100,12 +180,13 @@ for (const def of CATEGORIES) {
     })
   }
   for (let i = 0; i < 12; i += 1) {
-    const brand = def.brands[(i + 3) % def.brands.length]
+    const pid = id++
+    const brand = pickBrand(def.brands, pid, i + 64)
     const suf = def.suffixes[(i + 2) % def.suffixes.length]
     const col = KLASIK_COLORS[i % KLASIK_COLORS.length]
-    const pid = id++
     products.push({
       id: pid,
+      room: ROOMS[(pid - 1) % ROOMS.length],
       category: def.category,
       name: `${brand} ${suf}`,
       brand,
@@ -116,12 +197,13 @@ for (const def of CATEGORIES) {
     })
   }
   for (let i = 0; i < 4; i += 1) {
-    const brand = def.brands[(i + 1) % def.brands.length]
+    const pid = id++
+    const brand = pickBrand(def.brands, pid, i + 128)
     const suf = def.suffixes[(i + 4) % def.suffixes.length]
     const col = NEUTRAL_COLORS[i % NEUTRAL_COLORS.length]
-    const pid = id++
     products.push({
       id: pid,
+      room: ROOMS[(pid - 1) % ROOMS.length],
       category: def.category,
       name: `${brand} ${suf} Nötr`,
       brand,
@@ -132,12 +214,13 @@ for (const def of CATEGORIES) {
     })
   }
   for (let i = 0; i < 4; i += 1) {
-    const brand = def.brands[(i + 5) % def.brands.length]
+    const pid = id++
+    const brand = pickBrand(def.brands, pid, i + 192)
     const suf = def.suffixes[(i + 1) % def.suffixes.length]
     const col = NEUTRAL_COLORS[(i + 2) % NEUTRAL_COLORS.length]
-    const pid = id++
     products.push({
       id: pid,
+      room: ROOMS[(pid - 1) % ROOMS.length],
       category: def.category,
       name: `${brand} ${suf} Zamansız`,
       brand,
