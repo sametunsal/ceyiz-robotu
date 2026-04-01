@@ -6,6 +6,27 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* ── Skeleton loading shimmer ─────────────────────────────────────────── */
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    #f0ede9 25%,
+    #e6e1db 50%,
+    #f0ede9 75%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.6s ease-in-out infinite;
+}
+
 @keyframes fade-step-in {
   from {
     opacity: 0;
@@ -138,3 +159,182 @@ body {
 .ceyiz-dual-range .ceyiz-dual-range__input--min {
   z-index: 1;
 }
+
+/* ── Tablet / Desktop Drawer Animasyonları ─────────────────────────────── */
+@keyframes ceyiz-drawer-right-in {
+  from { transform: translateX(100%); }
+  to   { transform: translateX(0); }
+}
+
+@keyframes ceyiz-drawer-left-in {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(0); }
+}
+
+/* Sağdan açılan çekmece (seçim paneli) — sm+ ekranlarda */
+.ceyiz-drawer-right {
+  animation: ceyiz-drawer-right-in 0.32s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Soldan açılan çekmece (kontrol paneli) — sm+ ekranlarda */
+.ceyiz-drawer-left {
+  animation: ceyiz-drawer-left-in 0.32s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* ── @media print — Profesyonel Alışveriş Kataloğu ────────────────────── */
+@media print {
+  /* 1. Tüm interaktif UI'ı gizle */
+  body > #root > * {
+    display: none !important;
+  }
+
+  /* 2. Sadece print görünümünü göster */
+  body > #root .ceyiz-print-view {
+    display: block !important;
+  }
+
+  /* 3. Sayfa ayarları */
+  @page {
+    margin: 1.4cm 1.8cm;
+    size: A4;
+  }
+
+  /* 4. Genel reset */
+  *, *::before, *::after {
+    box-sizing: border-box;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  body {
+    background: white !important;
+    color: #1c1917 !important;
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 11pt;
+  }
+
+  /* 5. Print görünüm stilleri */
+  .ceyiz-print-view {
+    display: block;
+    width: 100%;
+    color: #1c1917;
+  }
+
+  .ceyiz-print-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 2px solid #e11d48;
+    padding-bottom: 10pt;
+    margin-bottom: 16pt;
+  }
+
+  .ceyiz-print-section {
+    page-break-inside: avoid;
+    margin-bottom: 20pt;
+  }
+
+  .ceyiz-print-room-header {
+    font-size: 10pt;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: #be123c;
+    border-bottom: 1px solid #fecdd3;
+    padding-bottom: 4pt;
+    margin-bottom: 10pt;
+    page-break-after: avoid;
+  }
+
+  .ceyiz-print-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8pt;
+    margin-bottom: 8pt;
+  }
+
+  .ceyiz-print-card {
+    border: 1px solid #e7e5e4;
+    border-radius: 6pt;
+    overflow: hidden;
+    page-break-inside: avoid;
+  }
+
+  .ceyiz-print-card img {
+    width: 100%;
+    aspect-ratio: 4/3;
+    object-fit: cover;
+    display: block;
+  }
+
+  .ceyiz-print-card-body {
+    padding: 5pt 6pt;
+  }
+
+  .ceyiz-print-card-brand {
+    font-size: 7pt;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #78716c;
+  }
+
+  .ceyiz-print-card-name {
+    font-size: 9pt;
+    font-weight: 600;
+    line-height: 1.3;
+    color: #1c1917;
+    margin: 2pt 0;
+  }
+
+  .ceyiz-print-card-price {
+    font-size: 10pt;
+    font-weight: 700;
+    color: #be123c;
+  }
+
+  .ceyiz-print-card-meta {
+    font-size: 7pt;
+    color: #a8a29e;
+    margin-top: 2pt;
+  }
+
+  .ceyiz-print-card-empty {
+    background: #fafaf9;
+    border: 1px dashed #d6d3d1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 80pt;
+    font-size: 8pt;
+    color: #a8a29e;
+  }
+
+  .ceyiz-print-summary-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 4pt 0;
+    border-bottom: 1px solid #f5f5f4;
+    font-size: 9pt;
+  }
+
+  .ceyiz-print-ai-section {
+    background: #faf5ff;
+    border: 1px solid #e9d5ff;
+    border-radius: 6pt;
+    padding: 12pt;
+    margin-top: 16pt;
+    page-break-inside: avoid;
+  }
+
+  .ceyiz-print-footer {
+    margin-top: 20pt;
+    padding-top: 8pt;
+    border-top: 1px solid #e7e5e4;
+    display: flex;
+    justify-content: space-between;
+    font-size: 8pt;
+    color: #a8a29e;
+  }
+}
+

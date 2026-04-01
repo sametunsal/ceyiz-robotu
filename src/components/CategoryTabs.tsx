@@ -1,72 +1,37 @@
-import {
-  Armchair,
-  Blinds,
-  Check,
-  Lamp,
-  LayoutGrid,
-  RectangleHorizontal,
-  UtensilsCrossed,
-} from 'lucide-react'
-import type { Product, RoomId } from '../types/product'
+/**
+ * CategoryTabs — Oda & kategori seçim paneli.
+ *
+ * Context'ten doğrudan okur; prop drilling tamamen kaldırıldı.
+ * Seçili & dolu kategoriler premium gradient highlight ile işaretlenir.
+ */
+import { memo } from 'react'
+import { Check } from 'lucide-react'
+import type { RoomId } from '../types/product'
 import { ROOM_CATEGORY_STEPS } from '../roomCategories'
+import { useConfigurator, CONFIG_ROOMS } from '../context/ConfiguratorContext'
+import { categoryIcon } from '../utils/categoryIcon'
 
-function categoryIcon(category: string) {
-  switch (category) {
-    case 'Koltuk':
-      return Armchair
-    case 'Halı':
-      return RectangleHorizontal
-    case 'Yemek Masası':
-      return UtensilsCrossed
-    case 'Aydınlatma':
-      return Lamp
-    case 'Perde':
-      return Blinds
-    default:
-      return LayoutGrid
-  }
-}
+export const CategoryTabs = memo(function CategoryTabs() {
+  const {
+    activeRoom,
+    setActiveRoom,
+    activeCategory,
+    setActiveCategory,
+    selections,
+    roomOverShare,
+  } = useConfigurator()
 
-export interface CategoryStep {
-  category: string
-  title: string
-}
-
-interface CategoryTabsProps {
-  activeRoom: RoomId
-  activeCategory: string
-  selections: {
-    Salon: Record<string, Product | null>
-    Mutfak: Record<string, Product | null>
-    'Yatak Odası': Record<string, Product | null>
-    Antre: Record<string, Product | null>
-  }
-  onRoomChange: (room: RoomId) => void
-  onCategoryChange: (category: string) => void
-  isRoomFullySelected: (room: RoomId) => boolean
-  roomOverShare: (room: RoomId) => boolean
-}
-
-const CONFIG_ROOMS: { id: RoomId; tab: string }[] = [
-  { id: 'Salon', tab: 'SALON' },
-  { id: 'Mutfak', tab: 'MUTFAK' },
-  { id: 'Yatak Odası', tab: 'YATAK ODASI' },
-  { id: 'Antre', tab: 'ANTRE' },
-]
-
-export function CategoryTabs({
-  activeRoom,
-  activeCategory,
-  selections,
-  onRoomChange,
-  onCategoryChange,
-  isRoomFullySelected,
-  roomOverShare,
-}: CategoryTabsProps) {
   const steps = ROOM_CATEGORY_STEPS[activeRoom]
+
+  function isRoomDone(room: RoomId) {
+    return ROOM_CATEGORY_STEPS[room].every((s) =>
+      Boolean(selections[room]?.[s.category]),
+    )
+  }
 
   return (
     <div className="flex min-h-0 min-w-0 flex-1 gap-2">
+      {/* ── Oda sekmeleri (dikey) ──────────────────────────────────────── */}
       <div
         className="flex w-10 shrink-0 flex-col gap-1 border-r border-stone-200/70 pr-2"
         role="tablist"
@@ -75,14 +40,14 @@ export function CategoryTabs({
         {CONFIG_ROOMS.map(({ id, tab }) => {
           const over = roomOverShare(id)
           const active = activeRoom === id
-          const roomDone = isRoomFullySelected(id)
+          const roomDone = isRoomDone(id)
           return (
             <button
               key={id}
               type="button"
               role="tab"
               aria-selected={active}
-              onClick={() => onRoomChange(id)}
+              onClick={() => setActiveRoom(id)}
               title={
                 over
                   ? 'Bu odanın payı bütçeyi aşıyor'
@@ -91,7 +56,11 @@ export function CategoryTabs({
                     : id
               }
               aria-label={
-                roomDone ? `${id} — tamamlandı` : over ? `${id} — bütçe uyarısı` : id
+                roomDone
+                  ? `${id} — tamamlandı`
+                  : over
+                    ? `${id} — bütçe uyarısı`
+                    : id
               }
               className={`relative rounded-lg px-1 py-2 text-center text-[8px] font-bold uppercase leading-tight tracking-wider transition-colors duration-300 ease-out ${
                 active
@@ -100,42 +69,39 @@ export function CategoryTabs({
                     ? 'bg-red-50 text-red-600 ring-1 ring-red-300'
                     : 'bg-white/90 text-stone-500 hover:bg-stone-100'
               }`}
-              style={{
-                writingMode: 'vertical-rl',
-                transform: 'rotate(180deg)',
-              }}
+              style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)' }}
             >
-              {roomDone ? (
+              {roomDone && (
                 <span
                   className="absolute right-0 top-0 z-10 size-2 rounded-full bg-emerald-500 shadow-sm ring-2 ring-white"
                   aria-hidden
                 />
-              ) : null}
+              )}
               {tab}
             </button>
           )
         })}
       </div>
-      <nav
-        className="min-h-0 min-w-0 flex-1 overflow-y-auto"
-        aria-label="Kategoriler"
-      >
+
+      {/* ── Kategori listesi ───────────────────────────────────────────── */}
+      <nav className="min-h-0 min-w-0 flex-1 overflow-y-auto" aria-label="Kategoriler">
         <ul className="flex flex-col gap-2">
           {steps.map((step) => {
             const p = selections[activeRoom]?.[step.category]
             const StepIcon = categoryIcon(step.category)
             const active = activeCategory === step.category
             const filled = Boolean(p)
+
             return (
               <li key={step.category}>
                 <button
                   type="button"
-                  onClick={() => onCategoryChange(step.category)}
+                  onClick={() => setActiveCategory(step.category)}
                   className={`w-full rounded-xl border p-3 text-left transition-all duration-300 ease-out focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-500 ${
                     filled
                       ? active
-                        ? 'border-emerald-400/90 bg-emerald-50 shadow-sm ring-2 ring-rose-400/75'
-                        : 'border-emerald-200/90 bg-emerald-50/85 hover:border-emerald-300 hover:bg-emerald-50'
+                        ? 'border-emerald-300/70 bg-gradient-to-br from-emerald-50 via-teal-50/40 to-transparent shadow-[0_0_0_1px_rgba(52,211,153,0.35),0_4px_16px_rgba(16,185,129,0.12)] ring-2 ring-rose-400/60'
+                        : 'border-emerald-200/70 bg-gradient-to-br from-emerald-50/90 via-teal-50/30 to-white/60 shadow-[0_0_0_1px_rgba(52,211,153,0.2)] hover:shadow-[0_0_0_1px_rgba(52,211,153,0.35)]'
                       : active
                         ? 'border-rose-500/90 bg-rose-50/90 shadow-sm ring-1 ring-rose-200/60'
                         : 'border-stone-200/80 bg-white/90 hover:border-stone-300 hover:bg-stone-50/90'
@@ -171,7 +137,7 @@ export function CategoryTabs({
                       <img
                         src={(p as { imageUrl: string }).imageUrl}
                         alt=""
-                        className="size-11 shrink-0 rounded-lg border border-emerald-100/80 object-cover shadow-sm"
+                        className="size-11 shrink-0 rounded-lg border border-emerald-200/60 object-cover shadow-sm shadow-emerald-900/10"
                         width={44}
                         height={44}
                       />
@@ -192,4 +158,4 @@ export function CategoryTabs({
       </nav>
     </div>
   )
-}
+})

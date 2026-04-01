@@ -1,33 +1,18 @@
-import {
-  Armchair,
-  Blinds,
-  Check,
-  Heart,
-  Lamp,
-  LayoutGrid,
-  RectangleHorizontal,
-  UtensilsCrossed,
-} from 'lucide-react'
+/**
+ * ProductGrid & ProductCard — Context-aware ürün ızgarası.
+ *
+ * - ProductCard: React.memo ile gereksiz re-render engellenir
+ * - Premium seçili durum: rose glow shadow + ring efekti
+ * - Harmony badge ve favori butonu korundu
+ */
+import { memo } from 'react'
+import { Check, Heart } from 'lucide-react'
 import type { Product } from '../types/product'
 import { formatTry } from '../formatMoney'
 import { isHarmonyMatch } from '../smartWizard'
+import { categoryIcon } from '../utils/categoryIcon'
 
-function categoryIcon(category: string) {
-  switch (category) {
-    case 'Koltuk':
-      return Armchair
-    case 'Halı':
-      return RectangleHorizontal
-    case 'Yemek Masası':
-      return UtensilsCrossed
-    case 'Aydınlatma':
-      return Lamp
-    case 'Perde':
-      return Blinds
-    default:
-      return LayoutGrid
-  }
-}
+// ─── ProductCard ─────────────────────────────────────────────────────────────
 
 interface ProductCardProps {
   product: Product
@@ -38,7 +23,7 @@ interface ProductCardProps {
   onToggleFavorite: (productId: number) => void
 }
 
-export function ProductCard({
+export const ProductCard = memo(function ProductCard({
   product,
   selected,
   harmony,
@@ -55,7 +40,7 @@ export function ProductCard({
         onClick={() => onSelect(product)}
         className={`group relative flex w-full flex-col overflow-hidden rounded-2xl border bg-white text-left shadow-sm transition-all duration-300 ease-out focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-500 hover:-translate-y-1 hover:shadow-xl hover:shadow-stone-300/40 ${
           selected
-            ? 'border-rose-500 ring-2 ring-rose-400/90 ring-offset-2 ring-offset-[#faf8f4] shadow-lg shadow-rose-900/15'
+            ? 'border-rose-400/80 ring-2 ring-rose-400/60 ring-offset-2 ring-offset-[#faf8f4] shadow-[0_0_20px_rgba(225,29,72,0.18),0_4px_12px_rgba(225,29,72,0.12)]'
             : 'border-stone-200 hover:border-stone-300'
         }`}
       >
@@ -90,16 +75,25 @@ export function ProductCard({
               <span className="sr-only">Seçildi</span>
             </span>
           )}
-          <button
-            type="button"
+          {/* div+role=button: button içinde button (nested) hatasını önler */}
+          <div
+            role="button"
+            tabIndex={0}
             onClick={(e) => {
               e.stopPropagation()
               onToggleFavorite(product.id)
             }}
-            className={`absolute right-3 top-12 flex size-8 items-center justify-center rounded-full transition-all duration-200 ${
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault()
+                e.stopPropagation()
+                onToggleFavorite(product.id)
+              }
+            }}
+            className={`absolute right-3 top-12 flex size-8 cursor-pointer items-center justify-center rounded-full transition-all duration-200 ${
               isFavorite
                 ? 'bg-rose-500 text-white shadow-lg'
-                : 'bg-white/90 text-stone-400 hover:text-rose-500 hover:bg-white'
+                : 'bg-white/90 text-stone-400 hover:bg-white hover:text-rose-500'
             }`}
             title={isFavorite ? 'Favorilerden kaldır' : 'Favorilere ekle'}
             aria-label={isFavorite ? 'Favorilerden kaldır' : 'Favorilere ekle'}
@@ -109,7 +103,7 @@ export function ProductCard({
               fill={isFavorite ? 'currentColor' : 'none'}
               aria-hidden
             />
-          </button>
+          </div>
         </div>
         <div className="flex flex-1 flex-col gap-3 p-4">
           <div>
@@ -121,25 +115,21 @@ export function ProductCard({
             </h3>
           </div>
           <div className="mt-auto flex flex-wrap gap-2 text-xs text-stone-600">
-            <span className="rounded-md bg-stone-100 px-2 py-1">
-              {product.style}
-            </span>
-            <span className="rounded-md bg-stone-100 px-2 py-1">
-              {product.color}
-            </span>
+            <span className="rounded-md bg-stone-100 px-2 py-1">{product.style}</span>
+            <span className="rounded-md bg-stone-100 px-2 py-1">{product.color}</span>
           </div>
-          <p className="text-lg font-semibold text-rose-800">
-            {formatTry(product.price)}
-          </p>
+          <p className="text-lg font-semibold text-rose-800">{formatTry(product.price)}</p>
         </div>
       </button>
     </li>
   )
-}
+})
+
+// ─── ProductGrid ──────────────────────────────────────────────────────────────
 
 interface ProductGridProps {
   products: Product[]
-  selectedProduct: Product | undefined
+  selectedProduct: Product | undefined | null
   sofaForHarmony: Product | undefined
   activeCategory: string
   onSelect: (product: Product) => void
@@ -147,7 +137,7 @@ interface ProductGridProps {
   isFavorite: (productId: number) => boolean
 }
 
-export function ProductGrid({
+export const ProductGrid = memo(function ProductGrid({
   products,
   selectedProduct,
   sofaForHarmony,
@@ -178,4 +168,4 @@ export function ProductGrid({
       })}
     </ul>
   )
-}
+})

@@ -1,5 +1,13 @@
+/**
+ * BudgetPanel & DualPriceRangeSlider — Bütçe girişi ve fiyat aralığı filtresi.
+ * Context'ten doğrudan okur; prop drilling tamamen kaldırıldı.
+ */
+import { memo } from 'react'
 import { Check } from 'lucide-react'
+import { useConfigurator } from '../context/ConfiguratorContext'
 import { formatTry } from '../formatMoney'
+
+// ─── DualPriceRangeSlider ────────────────────────────────────────────────────
 
 interface DualPriceRangeSliderProps {
   minBound: number
@@ -63,39 +71,31 @@ export function DualPriceRangeSlider({
   )
 }
 
-interface BudgetPanelProps {
-  budgetInput: string
-  budgetDirty: boolean
-  priceRangeLo: number
-  priceRangeHi: number
-  priceBounds: { min: number; max: number }
-  loading: boolean
-  catalogLength: number
-  onBudgetInputChange: (value: string) => void
-  onBudgetApply: () => void
-  onPriceLoChange: (v: number) => void
-  onPriceHiChange: (v: number) => void
-  onResetPriceRange: () => void
-}
+// ─── BudgetPanel ─────────────────────────────────────────────────────────────
 
-export function BudgetPanel({
-  budgetInput,
-  budgetDirty,
-  priceRangeLo,
-  priceRangeHi,
-  priceBounds,
-  loading,
-  catalogLength,
-  onBudgetInputChange,
-  onBudgetApply,
-  onPriceLoChange,
-  onPriceHiChange,
-  onResetPriceRange,
-}: BudgetPanelProps) {
-  const showDualPriceSlider = catalogLength > 0 && priceBounds.max > priceBounds.min
+export const BudgetPanel = memo(function BudgetPanel() {
+  const {
+    budgetInput,
+    budgetDirty,
+    setBudgetInput,
+    applyBudgetFromInput,
+    priceRangeLo,
+    priceRangeHi,
+    priceBounds,
+    setPriceRangeLo,
+    setPriceRangeHi,
+    resetPriceRange,
+    loading,
+    products,
+  } = useConfigurator()
+
+  const catalogLength = products.length
+  const showDualPriceSlider =
+    catalogLength > 0 && priceBounds.max > priceBounds.min
 
   return (
     <div className="space-y-6">
+      {/* ── Bütçe girişi ──────────────────────────────────────────────── */}
       <div>
         <p className="text-[10px] font-bold uppercase tracking-widest text-stone-500">
           Toplam bütçem (TL)
@@ -107,26 +107,28 @@ export function BudgetPanel({
           placeholder="Örn: 100000"
           aria-label="Toplam bütçem (TL)"
           value={budgetInput}
-          onChange={(e) => onBudgetInputChange(e.target.value)}
+          onChange={(e) => setBudgetInput(e.target.value)}
           onKeyDown={(e) => {
-            if (e.key === 'Enter') onBudgetApply()
+            if (e.key === 'Enter') applyBudgetFromInput()
           }}
           className="mt-2 h-11 w-full rounded-xl border border-stone-200 bg-white px-3 text-sm font-medium tabular-nums outline-none ring-rose-500/25 focus:border-rose-400 focus:ring-2"
         />
         <button
           type="button"
-          onClick={onBudgetApply}
+          onClick={applyBudgetFromInput}
           className="mt-2 flex h-10 w-full touch-manipulation items-center justify-center gap-2 rounded-xl bg-stone-900 text-sm font-semibold text-white transition hover:bg-stone-800"
         >
           <Check className="size-4" aria-hidden />
           Güncelle
         </button>
-        {budgetDirty ? (
+        {budgetDirty && (
           <p className="mt-2 text-xs text-amber-700">
             Kaydetmek için Güncelle'ye bas.
           </p>
-        ) : null}
+        )}
       </div>
+
+      {/* ── Fiyat aralığı filtresi ─────────────────────────────────────── */}
       <div className="border-t border-stone-200/80 pt-5">
         <p className="text-[10px] font-bold uppercase tracking-widest text-stone-500">
           Fiyat filtresi
@@ -141,8 +143,8 @@ export function BudgetPanel({
               maxBound={priceBounds.max}
               lo={priceRangeLo}
               hi={priceRangeHi}
-              onLoChange={onPriceLoChange}
-              onHiChange={onPriceHiChange}
+              onLoChange={setPriceRangeLo}
+              onHiChange={setPriceRangeHi}
             />
             <div className="mt-2 flex justify-between text-xs font-semibold tabular-nums text-stone-800">
               <span>{formatTry(Math.min(priceRangeLo, priceRangeHi))}</span>
@@ -150,7 +152,7 @@ export function BudgetPanel({
             </div>
             <button
               type="button"
-              onClick={onResetPriceRange}
+              onClick={resetPriceRange}
               className="mt-3 w-full rounded-lg border border-rose-200/80 bg-rose-50/80 py-2 text-xs font-semibold text-rose-900 transition hover:bg-rose-100/80"
             >
               Tüm fiyat aralığı
@@ -166,4 +168,4 @@ export function BudgetPanel({
       </div>
     </div>
   )
-}
+})

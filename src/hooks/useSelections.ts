@@ -133,6 +133,19 @@ export function useSelections() {
     setHistory([])
   }, [])
 
+  /** Paylaşım linkinden gelen seçimleri yükle (mevcut durum history'ye eklenir) */
+  const loadSelections = useCallback(
+    (newSelections: MultiRoomSelections) => {
+      setHistory((prev) => {
+        const newHistory = [...prev, { selections, timestamp: Date.now() }]
+        if (newHistory.length > 20) return newHistory.slice(-20)
+        return newHistory
+      })
+      setSelections(newSelections)
+    },
+    [selections],
+  )
+
   const reset = useCallback(() => {
     setHistory((prev) => {
       const newHistory = [...prev, { selections, timestamp: Date.now() }]
@@ -205,6 +218,7 @@ export function useSelections() {
     undo,
     canUndo,
     clearHistory,
+    loadSelections,
     toggleFavorite,
     isFavorite,
     favorites,
